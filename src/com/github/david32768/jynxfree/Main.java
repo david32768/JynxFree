@@ -88,7 +88,7 @@ public class Main {
         Optional<String> optname = setOptions(args);
         if (LOGGER().numErrors() != 0) {
             LOG(M3); // "program terminated because of errors"
-            appUsage();
+            appUsage(main);
             return false;
         }
         boolean success;

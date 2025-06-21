@@ -413,11 +413,11 @@ public enum Message {
     M608(BLANK,"bci -> %d stack -> %s"),
     M609(BLANK,"do not print stack after each instruction"),
     M610("ambiguous case %d in %s dropped"),
-    M611(INFO,"case(s) with branch to default label in %s dropped"),
+    M611(INFO,"case %d with branch to default label in %s could be dropped"),
     M612(BLANK,"%s ; line %d"),
     M613(BLANK,"slot %d name = %s type = %s"),
     M614(BLANK,"%s handled at %s"),
-    M615(BLANK,"%s handler"),
+    M615(BLANK,"%s handler %s - %s"),
     M616(BLANK,"%s attribute is present but empty"),
 
     M800(ENDINFO,"line number 0 changed to 1; ASM Issue #317989"),

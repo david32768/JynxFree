@@ -50,7 +50,7 @@ public enum MainOption {
 
     private final static int JYNX_VERSION = 0;
     private final static int JYNX_RELEASE = 24;
-    private final static int JYNX_BUILD = 0;
+    private final static int JYNX_BUILD = 1;
     public final static String SUFFIX = ".jx";
 
 

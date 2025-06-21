@@ -15,11 +15,15 @@ public interface MainOptionService {
         return result;
     }
 
+    default String callToString(byte[] bytes) {
+        throw new UnsupportedOperationException();
+    }
+
     default boolean call(String fname, PrintWriter pw) {
         throw new UnsupportedOperationException();
     }
 
-    default byte[] assembleString(String classname, String code) {
+    default byte[] callFromString(String classname, String code) {
         throw new UnsupportedOperationException();        
     }
     

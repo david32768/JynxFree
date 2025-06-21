@@ -37,7 +37,7 @@ public enum ClassType {
     PACKAGE(Constants.OBJECT_CLASS, true,
             dir_package, null,
             null,
-            EnumSet.of(acc_interface,acc_abstract)),
+            EnumSet.of(acc_interface, acc_abstract, acc_synthetic)),
     ENUM(Constants.ENUM_SUPER, false,
             dir_enum, dir_inner_enum,
             EnumSet.of(acc_enum),
