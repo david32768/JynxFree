@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import static com.github.david32768.jynxfree.jvm.StandardAttribute.*;
 import static com.github.david32768.jynxfree.jynx.Global.*;
-import static com.github.david32768.jynxfree.jynx.Message.*;
 import static com.github.david32768.jynxfree.jynx.State.*;
+import static com.github.david32768.jynxfree.my.Message.*;
 
 import com.github.david32768.jynxfree.jvm.Feature;
 import com.github.david32768.jynxfree.jvm.JvmVersioned;

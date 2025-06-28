@@ -5,12 +5,12 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.github.david32768.jynxfree.jynx.Message.M218;
-import static com.github.david32768.jynxfree.jynx.Message.M219;
-import static com.github.david32768.jynxfree.jynx.Message.M32;
-import static com.github.david32768.jynxfree.jynx.Message.M4;
-import static com.github.david32768.jynxfree.jynx.Message.M73;
-import static com.github.david32768.jynxfree.jynx.Message.M999;
+import static com.github.david32768.jynxfree.my.Message.M218;
+import static com.github.david32768.jynxfree.my.Message.M219;
+import static com.github.david32768.jynxfree.my.Message.M32;
+import static com.github.david32768.jynxfree.my.Message.M4;
+import static com.github.david32768.jynxfree.my.Message.M73;
+import static com.github.david32768.jynxfree.my.Message.M999;
 
 import com.github.david32768.jynxfree.jvm.ConstantPoolType;
 import com.github.david32768.jynxfree.jvm.JvmVersion;
@@ -167,15 +167,15 @@ public class Global {
         return Optional.empty();
     }
 
-    public static void LOG(Message msg,Object... objs) {
+    public static void LOG(JynxMessage msg,Object... objs) {
         global.logger.log(msg,objs);
     }
 
-    public static void LOG(String linestr, Message msg, Object... objs) {
+    public static void LOG(String linestr, JynxMessage msg, Object... objs) {
         global.logger.log(linestr, msg, objs);
     }
 
-    public static void LOG(Throwable ex, Message msg, Object... objs) {
+    public static void LOG(Throwable ex, JynxMessage msg, Object... objs) {
         if (OPTION(GlobalOption.DEBUG)) {
             ex.printStackTrace();;
         }

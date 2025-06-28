@@ -4,7 +4,7 @@ import java.util.EnumSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.github.david32768.jynxfree.jynx.Message.*;
+import static com.github.david32768.jynxfree.my.Message.*;
 
 import static com.github.david32768.jynxfree.jvm.AccessFlag.acc_final;
 import static com.github.david32768.jynxfree.jvm.AccessFlag.acc_static;

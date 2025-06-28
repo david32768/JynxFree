@@ -4,9 +4,9 @@ import java.lang.classfile.TypeKind;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static com.github.david32768.jynxfree.jynx.Message.M129;
-import static com.github.david32768.jynxfree.jynx.Message.M70;
-import static com.github.david32768.jynxfree.jynx.Message.M77;
+import static com.github.david32768.jynxfree.my.Message.M129;
+import static com.github.david32768.jynxfree.my.Message.M70;
+import static com.github.david32768.jynxfree.my.Message.M77;
 
 import com.github.david32768.jynxfree.jynx.LogIllegalArgumentException;
 

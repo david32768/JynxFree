@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import static com.github.david32768.jynxfree.jvm.JvmVersion.MIN_VERSION;
 import static com.github.david32768.jynxfree.jvm.JvmVersion.NEVER;
-import static com.github.david32768.jynxfree.jynx.Message.M62;
+import static com.github.david32768.jynxfree.my.Message.M62;
 
 import com.github.david32768.jynxfree.jynx.LogAssertionError;
 

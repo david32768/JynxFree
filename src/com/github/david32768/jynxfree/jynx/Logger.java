@@ -6,9 +6,12 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.github.david32768.jynxfree.jynx.Message.*;
-
 import static com.github.david32768.jynxfree.jynx.Global.OPTION;
+
+import static com.github.david32768.jynxfree.my.Message.M104;
+import static com.github.david32768.jynxfree.my.Message.M131;
+import static com.github.david32768.jynxfree.my.Message.M84;
+import static com.github.david32768.jynxfree.my.Message.M85;
 
 public class Logger {
 
@@ -58,11 +61,11 @@ public class Logger {
         currentLine = lines.pop(); // removeFirst
     }
 
-    private void printInfo(Message msg, Object... args) {
+    private void printInfo(JynxMessage msg, Object... args) {
         System.err.println(msg.format(args));
     }
     
-    private void printLineMessage(Message msg, Object... args) {
+    private void printLineMessage(JynxMessage msg, Object... args) {
         if (Objects.equals(currentLine,lastErrorLine)) {
         } else {
             System.err.println();
@@ -78,12 +81,12 @@ public class Logger {
         printInfo(msg, args);
     }
 
-    private void printError(Message msg, Object... args) {
+    private void printError(JynxMessage msg, Object... args) {
         printLineMessage(msg, args);
         errct++;
     }
 
-    private void addEndInfo(Message msg, Object... args) {
+    private void addEndInfo(JynxMessage msg, Object... args) {
         endinfo.add(msg.format(args));
     }
     
@@ -103,7 +106,7 @@ public class Logger {
         return errct == 0;
     }
 
-    private static LogMsgType msgType(Message msg) {
+    private static LogMsgType msgType(JynxMessage msg) {
         LogMsgType logtype = msg.getLogtype();
         if (OPTION(GlobalOption.INCREASE_MESSAGE_SEVERITY)) {
             logtype = logtype.up();
@@ -115,7 +118,7 @@ public class Logger {
     }
     
     @SuppressWarnings("fallthrough")
-    void log(Message msg, Object... objs) {
+    void log(JynxMessage msg, Object... objs) {
        LogMsgType logtype = msgType(msg);
         switch (logtype) {
             case SEVERE:
@@ -156,7 +159,7 @@ public class Logger {
         
     }
 
-    void log(String line, Message msg, Object... objs) {
+    void log(String line, JynxMessage msg, Object... objs) {
         pushCurrent();
         setLine(line);
         log(msg,objs);

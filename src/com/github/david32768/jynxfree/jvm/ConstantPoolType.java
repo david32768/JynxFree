@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import static com.github.david32768.jynxfree.jvm.ConstantPoolType.EntryType.*;
 import static com.github.david32768.jynxfree.jvm.JvmVersion.*;
-import static com.github.david32768.jynxfree.jynx.Message.*;
+import static com.github.david32768.jynxfree.my.Message.*;
 
 import static com.github.david32768.jynxfree.jynx.Global.LOG;
 

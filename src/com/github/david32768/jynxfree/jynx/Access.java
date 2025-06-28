@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 import static com.github.david32768.jynxfree.jvm.AccessFlag.*;
 import static com.github.david32768.jynxfree.jvm.Context.*;
 import static com.github.david32768.jynxfree.jynx.Directive.*;
-import static com.github.david32768.jynxfree.jynx.Message.*;
+import static com.github.david32768.jynxfree.my.Message.*;
 
 import static com.github.david32768.jynxfree.jynx.Global.LOG;
 import static com.github.david32768.jynxfree.jynx.Global.OPTION;

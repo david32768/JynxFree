@@ -3,7 +3,7 @@ package com.github.david32768.jynxfree.jvm;
 import java.lang.classfile.attribute.StackMapFrameInfo.VerificationTypeInfo;
 import java.util.stream.Stream;
 
-import static com.github.david32768.jynxfree.jynx.Message.*;
+import static com.github.david32768.jynxfree.my.Message.*;
 
 import static com.github.david32768.jynxfree.jynx.Global.LOG;
 

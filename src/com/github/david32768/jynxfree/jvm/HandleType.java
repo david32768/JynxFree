@@ -5,9 +5,9 @@ import java.lang.invoke.MethodHandleInfo;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 
-import static com.github.david32768.jynxfree.jynx.Message.*;
-import static com.github.david32768.jynxfree.jynx.Message.M101;
-import static com.github.david32768.jynxfree.jynx.Message.M76;
+import static com.github.david32768.jynxfree.my.Message.*;
+import static com.github.david32768.jynxfree.my.Message.M101;
+import static com.github.david32768.jynxfree.my.Message.M76;
 
 import com.github.david32768.jynxfree.jynx.LogIllegalArgumentException;
 

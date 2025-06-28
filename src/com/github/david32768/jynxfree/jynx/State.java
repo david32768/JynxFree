@@ -3,7 +3,7 @@ package com.github.david32768.jynxfree.jynx;
 import java.util.EnumSet;
 import java.util.function.BiConsumer;
 
-import static com.github.david32768.jynxfree.jynx.Message.M165;
+import static com.github.david32768.jynxfree.my.Message.M165;
 
 public enum State {
     

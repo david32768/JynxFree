@@ -6,8 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static com.github.david32768.jynxfree.jynx.Message.M286;
-import static com.github.david32768.jynxfree.jynx.Message.M289;
+import static com.github.david32768.jynxfree.my.Message.M286;
+import static com.github.david32768.jynxfree.my.Message.M289;
 
 public class ClassUtil {
         

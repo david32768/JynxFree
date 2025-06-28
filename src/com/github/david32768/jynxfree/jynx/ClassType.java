@@ -10,10 +10,10 @@ import static com.github.david32768.jynxfree.jvm.AccessFlag.*;
 import static com.github.david32768.jynxfree.jynx.Directive.*;
 import static com.github.david32768.jynxfree.jynx.Global.LOG;
 import static com.github.david32768.jynxfree.jynx.GlobalOption.VALHALLA;
-import static com.github.david32768.jynxfree.jynx.Message.M186;
-import static com.github.david32768.jynxfree.jynx.Message.M283;
-import static com.github.david32768.jynxfree.jynx.Message.M327;
 import static com.github.david32768.jynxfree.jynx.NameDesc.CLASS_NAME;
+import static com.github.david32768.jynxfree.my.Message.M186;
+import static com.github.david32768.jynxfree.my.Message.M283;
+import static com.github.david32768.jynxfree.my.Message.M327;
 
 import com.github.david32768.jynxfree.jvm.AccessFlag;
 import com.github.david32768.jynxfree.jvm.Constants;

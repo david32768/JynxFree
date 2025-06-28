@@ -4,7 +4,7 @@ import java.lang.classfile.ClassFile;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.david32768.jynxfree.jynx.Message.*;
+import static com.github.david32768.jynxfree.my.Message.*;
 
 import static com.github.david32768.jynxfree.jynx.Global.LOG;
 import static com.github.david32768.jynxfree.jynx.Global.OPTION;

@@ -6,7 +6,7 @@ public class LogIllegalArgumentException extends IllegalArgumentException {
 
     private static final long serialVersionUID = 1L;
     
-    public LogIllegalArgumentException(Message msg,Object... args) {
+    public LogIllegalArgumentException(JynxMessage msg,Object... args) {
         LOG(msg,args);
     }
 

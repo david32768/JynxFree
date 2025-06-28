@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.david32768.jynxfree.jynx.GlobalOption.*;
-import static com.github.david32768.jynxfree.jynx.Message.M331;
-import static com.github.david32768.jynxfree.jynx.Message.M6;
+import static com.github.david32768.jynxfree.my.Message.M331;
+import static com.github.david32768.jynxfree.my.Message.M6;
 
 public enum MainOption {
     
@@ -50,7 +50,7 @@ public enum MainOption {
 
     private final static int JYNX_VERSION = 0;
     private final static int JYNX_RELEASE = 24;
-    private final static int JYNX_BUILD = 1;
+    private final static int JYNX_BUILD = 2;
     public final static String SUFFIX = ".jx";
 
 

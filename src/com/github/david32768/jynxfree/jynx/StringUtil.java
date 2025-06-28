@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import static com.github.david32768.jynxfree.jynx.Global.LOG;
-import static com.github.david32768.jynxfree.jynx.Message.M271;
-import static com.github.david32768.jynxfree.jynx.Message.M68;
-import static com.github.david32768.jynxfree.jynx.Message.M69;
-import static com.github.david32768.jynxfree.jynx.Message.M80;
-import static com.github.david32768.jynxfree.jynx.Message.M83;
-import static com.github.david32768.jynxfree.jynx.Message.M905;
+import static com.github.david32768.jynxfree.my.Message.M271;
+import static com.github.david32768.jynxfree.my.Message.M68;
+import static com.github.david32768.jynxfree.my.Message.M69;
+import static com.github.david32768.jynxfree.my.Message.M80;
+import static com.github.david32768.jynxfree.my.Message.M83;
+import static com.github.david32768.jynxfree.my.Message.M905;
 
 public class StringUtil {
 

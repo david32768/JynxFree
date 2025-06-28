@@ -6,7 +6,7 @@ public class LogAssertionError extends AssertionError {
 
     private static final long serialVersionUID = 1L;
     
-    public LogAssertionError(Message msg,Object... args) {
+    public LogAssertionError(JynxMessage msg,Object... args) {
         LOG(msg,args);
     }
 

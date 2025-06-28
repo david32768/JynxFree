@@ -4,7 +4,8 @@ import java.util.function.Function;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static com.github.david32768.jynxfree.jynx.Message.*;
+import static com.github.david32768.jynxfree.my.Message.*;
+
 
 public enum GlobalOption {
 
@@ -50,11 +51,11 @@ public enum GlobalOption {
     private final String abbrev;
 
     
-    private GlobalOption(Message msg) {
+    private GlobalOption(JynxMessage msg) {
         this(null, msg);
     }
 
-    private GlobalOption(String abbrev, Message msg) {
+    private GlobalOption(String abbrev, JynxMessage msg) {
         this.msg = msg == null? null: msg.format();
         this.abbrev = abbrev;
         // "abbrev '%s' for option %s has invalid name"

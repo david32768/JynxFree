@@ -2,6 +2,7 @@ package com.github.david32768.jynxfree.jynx;
 
 import static com.github.david32768.jynxfree.jynx.LogMsgType.*;
 
+@Deprecated
 public enum Message {
 
     M0(BLANK,"Jynx version %s; maximum Java version is %s"),
@@ -41,8 +42,7 @@ public enum Message {
     M34(ENDINFO,"some line numbers have been reduced mod %d as exceed unsigned short max"),
     M35("current value(%d) for %s excedes limit(%d)"),
     M36("label already defined in line:%n  %s"),
-    @Deprecated
-    M37("invalid stack frame type - %s"),
+
     M38("%s is not a valid char literal - blank assumed"),
     M39(BLANK,"do not produce code"),
     M40("duplicate %s: %s already defined at line %d"),
@@ -64,7 +64,6 @@ public enum Message {
     M56(WARNING,"gap %d between local variables: %d - %d"),
     M57("Version %s does not support %s (supported %s)"),
     M58(ENDINFO,"used hint: %s %s %s"),
-    @Deprecated
     M59("method %s cannot be abstract in final class"),
     M60(WARNING,"local variables [%s ] are written but not read"),
     M61("invalid stack frame type(%s) - %s assumed"),
@@ -73,7 +72,7 @@ public enum Message {
     M64(STYLE,"final static field name (%s) is not in uppercase"),
     M65("local variables [%s ] are read but not written"),
     M66("invalid %s: %s"),
-    M67(ENDINFO,"poolsz = %d"),
+
     M68(WARNING,"Quoted string not followed by white space; blank inserted before '%c'"),
     M69("Embedded naked quote"),
     M70("cannot range check floating point numbers"),
@@ -87,8 +86,7 @@ public enum Message {
     M78("%s has different signature %s to component %s"),
     M79("Trying to read beyond end of file"),
     M80("Bad octal sequence"),
-    @Deprecated
-    M81("Directive must be first token but line = %s"),
+
     M82(ENDINFO,"used hint: %s %s %s %s"),
     M83("Bad escape sequence"),
     M84(INFO,"%s terminated because of severe error"),
@@ -99,8 +97,7 @@ public enum Message {
     M89(INFO,"file = %s version = %s"),
     M90("unused tokens - starting at %s"),
     M91("invalid minor version for major version (spec table 4.1A) - %s"),
-    @Deprecated
-    M92("%s count(%d) must be in range [%d,%d]"),
+
     M93(STYLE,"class name (%s) does not start with uppercase letter"),
     M94("incorrect order: last = %s this = %s"),
     M95(ENDINFO,".line directives ignored as %s specified"),
@@ -150,8 +147,7 @@ public enum Message {
     M139("%s prefix is invalid for %s"),
     M140("reading next token after reaching last"),
     M141("unknown constant; class = %s"),
-    @Deprecated
-    M142(WARNING,"comment contains unprintable characters (replaced by '?'); comment = \'%s\'"),
+
     M143(INFO,"%s %s assumed"),
     M144("unknown value class = %s"),
     M145("Invalid method description %s"),
@@ -171,8 +167,7 @@ public enum Message {
     M159("Invalid type - %s"),
     M160("invalid access flags %s for %s are dropped"),
     M161("%s: jynx value (%d) does not agree with classfile value(%d)"),
-    @Deprecated
-    M162("some annotation values for %s are null; annotation ignored"),
+
     M163("stack underflow"),
     M164("stack overflow"),
     M165(SEVERE,"Directive in wrong place; Current state = %s%n  Expected state was one of %s"),
@@ -202,8 +197,7 @@ public enum Message {
     M189(LINE,"unneccessary case %d -> %s in %s as target is default label"),
     M190("mismatched local %d: required %s but found %s"),
     M191("method requires %s but found %s"),
-    @Deprecated
-    M192(BLANK,"Jynx %s %s"),
+
     M193(LINE,"value required (%d) for %s is less than limit value (%d); %d used"),    
     M194("annotation parameter count already been set"),
     M195(WARNING,"inner class name (%s) does not contain '$'"),
@@ -216,8 +210,7 @@ public enum Message {
     M202("unused field(s) in typeref not zero"),
     M203(WARNING,"potential infinite loop - catch using label equals catch from label"),
     M204("different types for %s; was %s but now %s"),
-    @Deprecated
-    M205("enum class changed; was %s now %s"),
+
     M206("Invalid type letter '%c' (%d)"),
     M207("possible serialization method %s is not private"),
     M208("code not complete - last %s was %s"),
@@ -249,7 +242,7 @@ public enum Message {
     M234("invalid parameter number %d; bounds are [0 - %d)"),
     M235("%s method appears in an interface"),
     M236(STYLE,"%s (%s) starts with uppercase letter and is not all uppercase"),
-    M237("error accepting class file: %s"),
+
     M238("error reading class file: %s"),
     M239(WARNING,"%s does not override object equals method in %s"),
     M240("%s is for internal use only"),
@@ -432,10 +425,7 @@ public enum Message {
     M906("unknown ASM type - %s"),
     M907("unknown directive %s for context %s"),
     M908("unexpected Op %s in this instruction"),
-    @Deprecated
-    M909("unknown ASM Node %s in instruction list"),
-    @Deprecated
-    M910("indent depth is now negative"),
+
     M911("indent depth would be below lower limit %d"),
     
     // for debugging
