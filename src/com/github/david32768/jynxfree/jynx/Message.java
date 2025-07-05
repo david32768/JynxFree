@@ -197,7 +197,7 @@ public enum Message {
     M189(LINE,"unneccessary case %d -> %s in %s as target is default label"),
     M190("mismatched local %d: required %s but found %s"),
     M191("method requires %s but found %s"),
-
+    M192("unknown code element %s ignored"),
     M193(LINE,"value required (%d) for %s is less than limit value (%d); %d used"),    
     M194("annotation parameter count already been set"),
     M195(WARNING,"inner class name (%s) does not contain '$'"),

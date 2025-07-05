@@ -143,11 +143,7 @@ public enum JvmVersion {
         }
         assert PREVIEW == ClassFile.PREVIEW_MINOR_VERSION;
         int max = ClassFile.latestMajorVersion();
-        String maxstr = String.format("V%d_PREVIEW", max);
-        JvmVersion thisversion = PARSE_MAP.get(maxstr);
-        if (thisversion == null) {
-            thisversion = SUPPORTED_VERSION;
-        }
+        JvmVersion thisversion = from(max, PREVIEW);
         MAX_VERSION = thisversion;
     }
 
