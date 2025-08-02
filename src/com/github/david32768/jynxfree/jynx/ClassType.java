@@ -116,7 +116,7 @@ public enum ClassType {
     }
 
     public Directive getInnerDir() {
-        Objects.nonNull(innerDir);
+        assert Objects.nonNull(innerDir);
         return innerDir;
     }
 

@@ -85,7 +85,7 @@ public class Main {
         MainOption main = optmain.get();
         args = Arrays.copyOfRange(args, 1, args.length);
         newGlobal(main);
-        Optional<String> optname = setOptions(args);
+        String[] mainargs = setOptions(args);
         if (LOGGER().numErrors() != 0) {
             LOG(M3); // "program terminated because of errors"
             appUsage(main);
@@ -93,7 +93,7 @@ public class Main {
         }
         boolean success;
         try {
-            success = main.run(optname);
+            success = main.run(mainargs);
         } catch (SevereError ex) {
             if (OPTION(GlobalOption.DEBUG)) {
                 ex.printStackTrace();;
@@ -103,7 +103,7 @@ public class Main {
         if (!success) {
             String classname = CLASS_NAME();
             if (classname == null) {
-                classname = optname.orElse("SYSIN");
+                classname = Arrays.asList(mainargs).toString();
             }
             LOG(M298,main.name(),classname); // "%s of %s failed"
         }

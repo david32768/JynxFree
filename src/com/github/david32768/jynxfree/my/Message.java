@@ -18,12 +18,11 @@ public enum Message implements JynxMessage {
     M8(BLANK,"check that called methods or used fields exist (on class path)"),
     M9(BLANK,"generate line numbers"),
     M10(BLANK,"warn if label unreferenced or alias"),
-    M11(BLANK,"let simple verifier use Class.forName() for non-java classes"),
     M12(BLANK,"%nUsage:%n"),
     M13(BLANK,"print stack trace(s)"),
     M14(BLANK,"if necessary reduces JVM release to maximum supported by ASM version"),
     M15(BLANK,"warn if names non-standard"),
-    M16(BLANK,"use ASM BasicVerifier instead of ASM SimpleVerifier"),
+    M16(BLANK,"only use ASM BasicVerifier"),
     M17(BLANK,"prints constant pool, instructions and other detail"),
     M18(BLANK,"do not produce annotations"),
     M19(BLANK,"use supplied stack map instead of ASM generated"),
@@ -38,6 +37,7 @@ public enum Message implements JynxMessage {
     M29(BLANK,"do not produce debug info"),
     M30(BLANK,"do not produce stack map"),
     M32(ERROR,"%s is not a valid option"),
+    M37(BLANK,"Use ClassFile Verifier with Platform Loader only (the default is system loader)"),
     M39(BLANK,"do not produce code"),
     M44(BLANK,"local variables are symbolic not absolute integers"),
     M51(BLANK,"do not output class file"),
@@ -52,7 +52,6 @@ public enum Message implements JynxMessage {
     M70(ERROR,"cannot range check floating point numbers"),
     M72(WARNING,"version %s may not be fully supported"),
     M73(WARNING,"irrelevant option %s ignored"),
-    M74(BLANK,"use java.lang.classfile"),
     M76(ERROR,"unknown handle tag: %d"),
     M77(ERROR,"%s value %d is not in range [%d,%d]"),
     M80(ERROR,"Bad octal sequence"),
@@ -89,7 +88,6 @@ public enum Message implements JynxMessage {
     M197(ERROR,"inner class cannot be module"),
     M200(WARNING,"unknown release (major = %d, minor = %d): used %s"),
     M202(ERROR,"unused field(s) in typeref not zero"),
-    M218(INFO,"SYSIN will be used as input"),
     M219(ERROR,"wrong number of parameters after options %s"),
     M226(ERROR,"invalid access flags %s for component"),
     M235(ERROR,"%s method appears in an interface"),
@@ -127,11 +125,6 @@ public enum Message implements JynxMessage {
         this.msg = format;
     }
     
-    
-    private Message(String format) {
-        this(ERROR,format);
-    }
-
     @Override
     public String format(Object... objs) {
         return String.format(format,objs);

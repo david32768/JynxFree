@@ -15,24 +15,26 @@ Usage:
 
   --HELP display help message
 
- jynx {options} .jx_file
+jynx {options} .jx_file
    (produces a class file from a .jx file)
-   (requires module JynxFor)
-
 
  tojynx {options}  class-name|class_file > .jx_file
    (produces a .jx file from a class)
    (any JYNX options are added to .version directive)
-   (requires module JynxTo)
 
-
- roundtrip {options}  class-name|class_file|text_file
-   (checks that TOJYNX followed by JYNX produces an equivalent class (according to ASM Textifier))
-   (requires module JynxRound)
-
+ roundtrip {options}  class-name|class_file
+   (checks that TOJYNX followed by JYNX produces an equivalent class)
+   (according to ASM Textifier)
 
  structure {options}  class-name|class_file
    (prints a skeleton of class structure)
-   (requires module JynxStructure)
+
+ compare {options}  class-name|class_file class-name|class_file
+   (checks that classes are the same according to ASM Textifier)
+
+ verify {options}  class-name|class_file [.hints-file]?
+   (verifies using classfile verifier)
+   (if present .hints file only contains a Jynx .hints directive)
+   (adds temporary stack map to verify pre Java V1_7 unless contains jsr,ret)
 
 ```

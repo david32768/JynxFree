@@ -49,7 +49,7 @@ public class Opcodes {
     
     public static boolean isWide(Opcode opcode) {
         return suffix(opcode).equals("W");
-//        return opcode.isWide(); // ONLY PSEUDO INSTRUCTIONS
+//        return opcode.isWide(); // WOULD RETURN ONLY PSEUDO INSTRUCTIONS i.e. PREFIXED WITH WIDE
     }
     
     public static int numericSuffix(Opcode opcode) {

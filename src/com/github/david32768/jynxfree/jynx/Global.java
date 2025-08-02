@@ -5,8 +5,6 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.github.david32768.jynxfree.my.Message.M218;
-import static com.github.david32768.jynxfree.my.Message.M219;
 import static com.github.david32768.jynxfree.my.Message.M32;
 import static com.github.david32768.jynxfree.my.Message.M4;
 import static com.github.david32768.jynxfree.my.Message.M73;
@@ -76,7 +74,7 @@ public class Global {
     }
     
     public static JvmVersion JVM_VERSION() {
-        Objects.nonNull(global.jvmVersion);
+        assert Objects.nonNull(global.jvmVersion);
         return global.jvmVersion;
     }
     
@@ -127,6 +125,12 @@ public class Global {
                 .forEach(Global::ADD_OPTION);
     }
     
+    public static void ADD_RELEVENT_OPTIONS(EnumSet<GlobalOption> optionset) {
+        optionset.stream()
+                .filter(opt -> global.main.usesOption(opt))
+                .forEach(Global::ADD_OPTION);
+    }
+    
     public static boolean OPTION(GlobalOption option) {
         return global.options.contains(option);
     }
@@ -135,9 +139,8 @@ public class Global {
         return global.options.clone();
     }
     
-    public static Optional<String> setOptions(String[] args) {
+    public static String[] setOptions(String[] args) {
         int i = 0;
-        String[] remainder = new String[0];
         for (; i < args.length; ++i) {
             String argi = args[i];
             if (argi.isEmpty()) {
@@ -152,19 +155,10 @@ public class Global {
                     LOG(M32,argi); // "%s is not a valid option"
                 }
             } else {
-                remainder = Arrays.copyOfRange(args, i, args.length);
-                if (remainder.length == 1) {
-                    return Optional.of(args[i]);
-                }
-                break;
+                return Arrays.copyOfRange(args, i, args.length);
             }
         }
-        if (remainder.length == 0) {
-            LOG(M218); //"SYSIN will be used as input"
-        } else {
-            LOG(M219,Arrays.asList(remainder)); // "wrong number of parameters after options %s"
-        }
-        return Optional.empty();
+        return new String[0];
     }
 
     public static void LOG(JynxMessage msg,Object... objs) {

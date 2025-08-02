@@ -26,10 +26,10 @@ public class JvmVersionRange {
    
     private JvmVersionRange (int level, EnumSet<JvmVersion> preview,
             JvmVersion start, JvmVersion deprecate, JvmVersion end) {
-        Objects.nonNull(preview);
-        Objects.nonNull(start);
-        Objects.nonNull(deprecate);
-        Objects.nonNull(end);
+        assert Objects.nonNull(preview);
+        assert Objects.nonNull(start);
+        assert Objects.nonNull(deprecate);
+        assert Objects.nonNull(end);
 
         assert !start.isPreview(): "start = " + start;
         assert !deprecate.isPreview(): "deprecate = " + deprecate;

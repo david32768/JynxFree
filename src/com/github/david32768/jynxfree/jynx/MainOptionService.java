@@ -8,18 +8,30 @@ public interface MainOptionService {
 
     MainOption main();
 
-    default boolean call(Optional<String> optfname)  {
-        PrintWriter pw = new PrintWriter(System.out);
-        boolean result = call(optfname.get(), pw);
-        pw.flush();
-        return result;
+    default boolean call(PrintWriter pw, String[] args) {
+        return switch (args.length) {
+            case 0 -> call(pw);
+            case 1 -> call(pw, args[0]);
+            case 2 -> call(pw, args[0], args[1]);
+            default -> {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
-
-    default String callToString(byte[] bytes) {
+    
+    default boolean call(PrintWriter pw) {
         throw new UnsupportedOperationException();
     }
-
-    default boolean call(String fname, PrintWriter pw) {
+    
+    default boolean call(PrintWriter pw, String arg) {
+        throw new UnsupportedOperationException();
+    }
+    
+    default boolean call(PrintWriter pw, String arg1, String arg2) {
+        throw new UnsupportedOperationException();
+    }
+    
+    default String callToString(byte[] bytes) {
         throw new UnsupportedOperationException();
     }
 

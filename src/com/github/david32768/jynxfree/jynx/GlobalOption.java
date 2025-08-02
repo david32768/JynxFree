@@ -18,14 +18,14 @@ public enum GlobalOption {
     WARN_UNNECESSARY_LABEL(M10), // "warn if label unreferenced or alias"
     WARN_STYLE(M15), // "warn if names non-standard"
     GENERATE_LINE_NUMBERS(M9), // "generate line numbers"
-    BASIC_VERIFIER(M16), // "use ASM BasicVerifier instead of ASM SimpleVerifier"
-    ALLOW_CLASS_FORNAME(M11), // "let simple verifier use Class.forName() for non-java classes"
+    BASIC_VERIFIER(M16), // "only use ASM BasicVerifier"
     CHECK_REFERENCES(M8), // "check that called methods or used fields exist (on class path)"
     VALIDATE_ONLY(M51), // "do not output class file"
     TRACE(M23), // "print (ASMifier) trace"
     SYMBOLIC_LOCAL(M44), // "local variables are symbolic not absolute integers"
-    USE_CLASSFILE(M74), // "use java.lang.classfile"
+
     VALHALLA(M601), // "Valhalla - limited support; may change"
+    VERIFIER_PLATFORM(M37), // "Use ClassFile Verifier with Platform Loader only (the default is system loader)"
     
     SKIP_CODE(M39), // "do not produce code"
     SKIP_DEBUG(M29), // "do not produce debug info"
@@ -110,9 +110,12 @@ public enum GlobalOption {
     }
     
     public static Optional<GlobalOption> optInstance(String str) {
+        String optstr = str.startsWith(OPTION_PREFIX)?
+                str:
+                OPTION_PREFIX + str;
         return Stream.of(values())
                 .filter(GlobalOption::isExternal)
-                .filter(g -> isEqual(g.name(), str, ""))
+                .filter(g -> isEqual(g.name(), optstr, OPTION_PREFIX))
                 .findFirst();
     }
 
