@@ -42,11 +42,12 @@ public enum MainOption {
                 DEBUG, INCREASE_MESSAGE_SEVERITY)
     ),
     ROUNDTRIP("roundtrip",
-        " {options}  class-name|class_file",
+        " {options}  class-name|class_file|txt-file",
         List.of(
             String.format("checks that %s followed by %s produces an equivalent class",
                     DISASSEMBLY.extname.toUpperCase(), ASSEMBLY.extname.toUpperCase()),
-            "according to ASM Textifier"
+            "according to ASM Textifier",
+            "txt-file is a .txt file containing [ {options} [class-name|class-file] ]*"    
         ),
         EnumSet.of(USE_STACK_MAP, BASIC_VERIFIER, VERIFIER_PLATFORM,
                 SKIP_FRAMES, DOWN_CAST, DEBUG, SUPPRESS_WARNINGS)

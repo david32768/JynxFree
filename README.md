@@ -22,9 +22,10 @@ jynx {options} .jx_file
    (produces a .jx file from a class)
    (any JYNX options are added to .version directive)
 
- roundtrip {options}  class-name|class_file
+ roundtrip {options}  class-name|class_file|txt-file
    (checks that TOJYNX followed by JYNX produces an equivalent class)
    (according to ASM Textifier)
+   (txt-file is a .txt file containing [ {options} [class-name|class-file] ]*)
 
  structure {options}  class-name|class_file
    (prints a skeleton of class structure)
