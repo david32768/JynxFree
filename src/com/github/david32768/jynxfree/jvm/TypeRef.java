@@ -11,6 +11,7 @@ import static com.github.david32768.jynxfree.my.Message.*;
 
 import com.github.david32768.jynxfree.jynx.Directive;
 import com.github.david32768.jynxfree.jynx.LogIllegalArgumentException;
+import com.github.david32768.jynxfree.jynx.LogUnexpectedEnumValueException;
 
 public enum TypeRef {
 
@@ -86,7 +87,7 @@ public enum TypeRef {
             case METHOD -> 'm';
             case CODE -> 'o';
             case CATCH -> 't';
-            default -> throw new EnumConstantNotPresentException(context.getClass(), context.name());
+            default -> throw new LogUnexpectedEnumValueException(context);
         };
         assert type == expected:
                 String.format("typeref = %s context = %s type = '%c' expected = '%c;",

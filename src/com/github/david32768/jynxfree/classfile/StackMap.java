@@ -9,6 +9,7 @@ import java.lang.classfile.attribute.StackMapTableAttribute;
 import java.lang.classfile.Attributes;
 import java.lang.classfile.Label;
 import java.lang.classfile.MethodModel;
+import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
 import java.lang.reflect.AccessFlag;
 import java.util.ArrayList;
@@ -36,6 +37,25 @@ public class StackMap {
         var info = getStackMap(codeAttribute.findAttribute(Attributes.stackMapTable()).orElse(null));
         var init = locals(classDesc, mm);
         return new StackMap(info, init);
+    }
+    
+    public static int slotSize(VerificationTypeInfo info) {
+        return switch (info) {
+            case SimpleVerificationTypeInfo.DOUBLE -> 2;
+            case SimpleVerificationTypeInfo.LONG  -> 2;
+            default -> 1;
+        };        
+    }
+    
+    public static TypeKind typeKind(VerificationTypeInfo info) {
+        return switch (info) {
+            case SimpleVerificationTypeInfo.DOUBLE -> TypeKind.DOUBLE;
+            case SimpleVerificationTypeInfo.LONG  -> TypeKind.LONG;
+            case SimpleVerificationTypeInfo.INTEGER -> TypeKind.INT;
+            case SimpleVerificationTypeInfo.FLOAT -> TypeKind.FLOAT;
+            case SimpleVerificationTypeInfo.TOP -> TypeKind.VOID;
+            default -> TypeKind.REFERENCE;
+        };        
     }
     
     private static Map<Label,StackMapFrameInfo> getStackMap(StackMapTableAttribute attr) {

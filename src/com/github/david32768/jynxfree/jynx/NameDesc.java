@@ -18,7 +18,7 @@ import com.github.david32768.jynxfree.jvm.Constants;
 
 public enum NameDesc {
 
-    OPTION("[A-Za-z][A-Za-z_]*"),
+    OPTION("[A-Za-z][A-Za-z_]*[0-9]?"),
     
     STATIC_INIT_NAME(Constants.STATIC_INIT_NAME.stringValue()),
     CLASS_INIT_NAME(Constants.CLASS_INIT_NAME.stringValue()),
@@ -121,9 +121,9 @@ public enum NameDesc {
         this.style = style;
     }
 
-    // incomplete test
     public static boolean isJavaBase(String str) {
-        return isJava(str);
+        Module javabase = Object.class.getModule();
+        return javabase.isExported(str.replace('/','.'));
     }
     
     public static boolean isJava(String str) {
@@ -152,7 +152,7 @@ public enum NameDesc {
     public boolean validate(Access accessname) {
         String name = accessname.name();
         switch (this) {
-            case FIELD_NAME:
+            case FIELD_NAME -> {
                 boolean ok = validate(name);
                 if (OPTION(WARN_STYLE)
                         && accessname.is(acc_static)
@@ -165,8 +165,8 @@ public enum NameDesc {
                     ok = false;
                 }
                 return ok;
-            default:
-                throw new AssertionError();
+            }
+            default -> throw new LogUnexpectedEnumValueException(this);
         }
     }
     

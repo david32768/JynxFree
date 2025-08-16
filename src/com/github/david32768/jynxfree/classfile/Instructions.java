@@ -4,11 +4,16 @@ import static java.lang.classfile.Opcode.*;
 
 import java.lang.classfile.Instruction;
 import java.lang.classfile.instruction.BranchInstruction;
+import java.lang.classfile.instruction.DiscontinuedInstruction;
+import java.lang.classfile.instruction.IncrementInstruction;
+import java.lang.classfile.instruction.LoadInstruction;
 import java.lang.classfile.instruction.LookupSwitchInstruction;
 import java.lang.classfile.instruction.OperatorInstruction;
+import java.lang.classfile.instruction.StoreInstruction;
 import java.lang.classfile.instruction.TableSwitchInstruction;
 import java.lang.classfile.Opcode;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class Instructions {
@@ -19,11 +24,11 @@ public class Instructions {
        SHIFT(ISHL, ISHR, IUSHR, LSHL, LSHR, LUSHR),
        COMPARE(LCMP, FCMPG, FCMPL, DCMPG, DCMPL),
        BINARY(IADD, LADD, FADD, DADD,
-                    ISUB, LSUB, FSUB, DSUB,
-                    IMUL, LMUL, FMUL, DMUL,
-                    IDIV, LDIV, FDIV, DDIV,
-                    IREM, LREM, FREM, DREM,
-                    IAND, LAND, IOR, LOR, IXOR, LXOR),
+                ISUB, LSUB, FSUB, DSUB,
+                IMUL, LMUL, FMUL, DMUL,
+                IDIV, LDIV, FDIV, DDIV,
+                IREM, LREM, FREM, DREM,
+                IAND, LAND, IOR, LOR, IXOR, LXOR),
        ;
        
        private final EnumSet<Opcode> opcodes;
@@ -63,15 +68,15 @@ public class Instructions {
                     .orElseThrow();
             
         }
-        
+
     }
 
     private Instructions() {}
-
     
     private static final EnumSet<Opcode> UNCONDITIONAL = EnumSet.of(GOTO, GOTO_W,
             TABLESWITCH, LOOKUPSWITCH, ATHROW,
-            ARETURN, IRETURN , LRETURN, FRETURN, DRETURN, RETURN);
+            ARETURN, IRETURN , LRETURN, FRETURN, DRETURN, RETURN,
+            RET, RET_W);
     
     public static boolean isUnconditional(Opcode op) {
         return UNCONDITIONAL.contains(op);
@@ -106,4 +111,36 @@ public class Instructions {
         };
     }
 
+    public static Optional<Integer> slot(Instruction inst) {
+        Integer slot = switch(inst) {
+            case StoreInstruction store -> store.slot();
+            case LoadInstruction load -> load.slot();
+            case IncrementInstruction incr -> incr.slot();
+            case DiscontinuedInstruction.RetInstruction ret -> ret.slot();
+            default -> null;
+        };
+        return Optional.ofNullable(slot);
+    }
+
+    public static Opcode oppositeBranch(Opcode opcode) {
+        return switch (opcode) {
+            case IFNULL -> IFNONNULL;
+            case IFNONNULL -> IFNULL;
+            case IFEQ -> IFNE;
+            case IFNE -> IFEQ;
+            case IFLT -> IFGE;
+            case IFGE -> IFLT;
+            case IFLE -> IFGT;
+            case IFGT -> IFLE;
+            case IF_ACMPEQ -> IF_ACMPNE;
+            case IF_ACMPNE -> IF_ACMPEQ;
+            case IF_ICMPEQ -> IF_ICMPNE;
+            case IF_ICMPNE -> IF_ICMPEQ;
+            case IF_ICMPLT -> IF_ICMPGE;
+            case IF_ICMPGE -> IF_ICMPLT;
+            case IF_ICMPLE -> IF_ICMPGT;
+            case IF_ICMPGT -> IF_ICMPLE;
+            default -> throw new IllegalArgumentException("no opposite branch for " + opcode);
+        };
+    }
 }

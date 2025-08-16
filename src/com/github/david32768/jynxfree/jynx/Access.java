@@ -186,12 +186,11 @@ public class Access {
             allOf(acc_final);
         }
         switch (classType) {
-            case ANNOTATION_CLASS:
-            case INTERFACE:
+            case ANNOTATION_CLASS, INTERFACE -> {
                 allOf(acc_public, acc_static, acc_final);
                 noneOf(acc_volatile, acc_transient, acc_enum);
-                break;
-            case RECORD:
+            }
+            case RECORD -> {
                 if (isComponent()) {
                     allOf(acc_private, acc_final);
                     noneOf(acc_static,acc_volatile,acc_transient,acc_enum);
@@ -199,18 +198,15 @@ public class Access {
                     allOf(acc_static);
                     noneOf(acc_enum);
                 }
-                break;
-            case ENUM:
-                break;
-            case BASIC:
-                noneOf(acc_enum);
-                break;
-            case VALUE_CLASS:
+            }
+            case ENUM -> {
+            }
+            case BASIC -> noneOf(acc_enum);
+            case VALUE_CLASS -> {
                 noneOf(acc_enum);
                 oneOf(acc_static, valhalla_acc_strict);
-                break;
-            default:
-                throw new EnumConstantNotPresentException(classType.getClass(),classType.name());
+            }
+            default -> throw new LogUnexpectedEnumValueException(classType);
         }
     }
 

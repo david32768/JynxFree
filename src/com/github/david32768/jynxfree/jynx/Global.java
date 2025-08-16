@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.github.david32768.jynxfree.my.Message.M32;
-import static com.github.david32768.jynxfree.my.Message.M4;
 import static com.github.david32768.jynxfree.my.Message.M73;
 import static com.github.david32768.jynxfree.my.Message.M999;
 
@@ -45,8 +44,7 @@ public class Global {
     
     public static void newGlobal(MainOption type) {
         global = new Global(type, EnumSet.noneOf(GlobalOption.class));
-        // "%nJynx %s %s; Java runtime version %s"
-        LOG(M4, type.name(), type.version(), Runtime.version());
+        type.printHeader();
     }
     
     public static Logger LOGGER() {
@@ -184,6 +182,9 @@ public class Global {
             return; // already logged
         }
         if (ex instanceof LogIllegalStateException) {
+            return; // already logged
+        }
+        if (ex instanceof LogUnsupportedOperationException) {
             return; // already logged
         }
         if (ex instanceof SevereError) {

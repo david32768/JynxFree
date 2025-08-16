@@ -73,24 +73,18 @@ public enum State {
     
     public boolean changeToThisState(DirectiveConsumer jc,Directive dir) {
         changeStateTo(jc, dir);
-        switch(this) {
-            case HEADER:
-            case COMMON:
-                return false;
-            default:
-                return true;
-        }
+        return switch (this) {
+            case HEADER, COMMON -> false;
+            default -> true;
+        };
     }
 
     public static State getState(ClassType classtype) {
-        switch(classtype) {
-            case MODULE_CLASS:
-                return MODULEHDR;
-            case PACKAGE:
-                return PACKAGEHDR;
-            default:
-                return CLASSHDR;
-        }
+        return switch (classtype) {
+            case MODULE_CLASS -> MODULEHDR;
+            case PACKAGE -> PACKAGEHDR;
+            default -> CLASSHDR;
+        };
     }
     
 }

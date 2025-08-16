@@ -1,12 +1,16 @@
 package com.github.david32768.jynxfree.jvm;
 
+import static java.lang.constant.DirectMethodHandleDesc.Kind.STATIC_GETTER;
+
 import java.lang.classfile.Opcode;
-import java.lang.invoke.MethodHandleInfo;
+import java.lang.constant.DirectMethodHandleDesc.Kind;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 
-import static com.github.david32768.jynxfree.my.Message.*;
+import static com.github.david32768.jynxfree.jvm.ConstantPoolType.*;
+
 import static com.github.david32768.jynxfree.my.Message.M101;
+import static com.github.david32768.jynxfree.my.Message.M161;
 import static com.github.david32768.jynxfree.my.Message.M76;
 
 import com.github.david32768.jynxfree.jynx.LogIllegalArgumentException;
@@ -14,26 +18,17 @@ import com.github.david32768.jynxfree.jynx.LogIllegalArgumentException;
 public enum HandleType {
     
     // jvms 4.4.8
-    REF_getField("GF", MethodHandleInfo.REF_getField,1,
-            Opcode.GETFIELD,ConstantPoolType.CONSTANT_Fieldref),
-    REF_getStatic("GS", MethodHandleInfo.REF_getStatic,2,
-            Opcode.GETSTATIC,ConstantPoolType.CONSTANT_Fieldref),
-    REF_putField("PF", MethodHandleInfo.REF_putField,3,
-            Opcode.PUTFIELD,ConstantPoolType.CONSTANT_Fieldref),
-    REF_putStatic("PS", MethodHandleInfo.REF_putStatic,4,
-            Opcode.PUTSTATIC,ConstantPoolType.CONSTANT_Fieldref),
-    REF_invokeVirtual("VL", MethodHandleInfo.REF_invokeVirtual,5,
-            Opcode.INVOKEVIRTUAL,ConstantPoolType.CONSTANT_Methodref),
-    REF_invokeStatic("ST", MethodHandleInfo.REF_invokeStatic,6,
-            Opcode.INVOKESTATIC,ConstantPoolType.CONSTANT_Methodref,
-            Feature.invokestatic_interface,ConstantPoolType.CONSTANT_InterfaceMethodref),
-    REF_invokeSpecial("SP", MethodHandleInfo.REF_invokeSpecial,7,
-            Opcode.INVOKESPECIAL,ConstantPoolType.CONSTANT_Methodref,
-            Feature.invokespecial_interface,ConstantPoolType.CONSTANT_InterfaceMethodref),
-    REF_newInvokeSpecial("NW", MethodHandleInfo.REF_newInvokeSpecial,8,
-            Opcode.INVOKESPECIAL,ConstantPoolType.CONSTANT_Methodref),
-    REF_invokeInterface("IN", MethodHandleInfo.REF_invokeInterface,9,
-            Opcode.INVOKEINTERFACE,ConstantPoolType.CONSTANT_InterfaceMethodref),
+    REF_getField("GF", 1, Opcode.GETFIELD, Kind.GETTER),
+    REF_getStatic("GS", 2, Opcode.GETSTATIC, Kind.STATIC_GETTER),
+    REF_putField("PF", 3, Opcode.PUTFIELD, Kind.SETTER),
+    REF_putStatic("PS", 4, Opcode.PUTSTATIC, Kind.STATIC_SETTER),
+    REF_invokeVirtual("VL", 5, Opcode.INVOKEVIRTUAL, Kind.VIRTUAL),
+    REF_invokeStatic("ST", 6, Opcode.INVOKESTATIC, Kind.STATIC,
+            Feature.invokestatic_interface, Kind.INTERFACE_STATIC),
+    REF_invokeSpecial("SP", 7, Opcode.INVOKESPECIAL, Kind.SPECIAL,
+            Feature.invokespecial_interface, Kind.INTERFACE_SPECIAL),
+    REF_newInvokeSpecial("NW", 8, Opcode.INVOKESPECIAL, Kind.CONSTRUCTOR),
+    REF_invokeInterface("IN", 9, Opcode.INVOKEINTERFACE, Kind.INTERFACE_VIRTUAL),
     ;
     
     private final String mnemonic;
@@ -43,23 +38,21 @@ public enum HandleType {
     private final Feature altfeature;
     private final ConstantPoolType altcpt;
     
-    private HandleType(String mnemonic,int reftype, int refnum, Opcode opcode, ConstantPoolType maincpt) {
-        this(mnemonic, reftype, refnum, opcode, maincpt, Feature.never, null);
+    private HandleType(String mnemonic, int refnum, Opcode opcode, Kind kind) {
+        this(mnemonic, refnum, opcode, kind, Feature.never, null);
     }
     
-    private HandleType(String mnemonic,int reftype, int refnum, Opcode opcode, ConstantPoolType maincpt,
-            Feature altfeature, ConstantPoolType altcpt) {
+    private HandleType(String mnemonic, int refnum, Opcode opcode, Kind kind,
+            Feature altfeature, Kind altkind) {
         this.mnemonic = mnemonic;
+        this.reftype = kind.refKind;
         // "%s: jynx value (%d) does not agree with classfile value(%d)"
-        assert reftype == refnum:M161.format(name(), refnum, reftype);
-        assert reftype == 1 + this.ordinal();
-        this.reftype = reftype;
+        assert this.reftype == refnum:M161.format(name(), refnum, reftype);
+        assert this.reftype == 1 + this.ordinal();
         this.opcode = opcode;
-        this.maincpt = maincpt;
+        this.maincpt = getConstantPoolType(kind);
         this.altfeature = altfeature;
-        this.altcpt = altcpt;
-        assert ordinal() == reftype - 1;
-        assert maincpt != null;
+        this.altcpt = altkind == null? null: getConstantPoolType(altkind);
     }
 
     private String getMnemonic() {
@@ -132,4 +125,11 @@ public enum HandleType {
         return htype + SEP;
     }
 
+    private static ConstantPoolType getConstantPoolType(Kind kind) {
+        return switch(kind) {
+            case CONSTRUCTOR, SPECIAL, STATIC, VIRTUAL -> CONSTANT_Methodref;
+            case GETTER, SETTER, STATIC_GETTER,STATIC_SETTER -> CONSTANT_Fieldref;
+            case INTERFACE_SPECIAL, INTERFACE_STATIC, INTERFACE_VIRTUAL -> CONSTANT_InterfaceMethodref;
+        };
+    }
 }

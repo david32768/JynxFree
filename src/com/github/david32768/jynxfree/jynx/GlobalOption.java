@@ -27,6 +27,7 @@ public enum GlobalOption {
     VALHALLA(M601), // "Valhalla - limited support; may change"
     VERIFIER_PLATFORM(M37), // "Use ClassFile Verifier with Platform Loader only (the default is system loader)"
     
+    UPGRADE_TO_V6(M11), // "upgrade version to Version V1_6"
     SKIP_CODE(M39), // "do not produce code"
     SKIP_DEBUG(M29), // "do not produce debug info"
     SKIP_FRAMES(M30), // "do not produce stack map"

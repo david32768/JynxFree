@@ -1,5 +1,8 @@
 package com.github.david32768.jynxfree.jvm;
 
+import static java.lang.classfile.attribute.StackMapFrameInfo.SimpleVerificationTypeInfo.*;
+
+import java.lang.classfile.attribute.StackMapFrameInfo.SimpleVerificationTypeInfo;
 import java.lang.classfile.attribute.StackMapFrameInfo.VerificationTypeInfo;
 import java.util.stream.Stream;
 
@@ -12,29 +15,29 @@ import com.github.david32768.jynxfree.jynx.LogAssertionError;
 public enum FrameType {
 
     // jvms 4.7.4
-    ft_Top(0, VerificationTypeInfo.ITEM_TOP),
-    ft_Integer(1, VerificationTypeInfo.ITEM_INTEGER),
-    ft_Float(2, VerificationTypeInfo.ITEM_FLOAT),
-    ft_Double(3, VerificationTypeInfo.ITEM_DOUBLE),
-    ft_Long(4, VerificationTypeInfo.ITEM_LONG),
-    ft_Null(5, VerificationTypeInfo.ITEM_NULL),
-    ft_UninitializedThis(6, VerificationTypeInfo.ITEM_UNINITIALIZED_THIS),
-    ft_Object(7, VerificationTypeInfo.ITEM_OBJECT, true),
-    ft_Uninitialized(8, VerificationTypeInfo.ITEM_UNINITIALIZED, true),
+    ft_Top(0, TOP),
+    ft_Integer(1, INTEGER),
+    ft_Float(2, FLOAT),
+    ft_Double(3, DOUBLE),
+    ft_Long(4, LONG),
+    ft_Null(5, NULL),
+    ft_Uninitialized_This(6, UNINITIALIZED_THIS),
+    ft_Object(7, null, VerificationTypeInfo.ITEM_OBJECT),
+    ft_Uninitialized(8, null, VerificationTypeInfo.ITEM_UNINITIALIZED),
     ;
 
     private final int tag;
     private final Integer asmType;
 
-    private FrameType(int tag, int classFileType) {
-        this(tag, classFileType, false);
+    private FrameType(int tag, SimpleVerificationTypeInfo type) {
+        this(tag, type, type.tag());
     }
 
-    private FrameType(int tag, int classFileType, boolean more) {
+    private FrameType(int tag, SimpleVerificationTypeInfo type, int classFileType) {
         this.tag = tag;
         // "%s: jynx value (%d) does not agree with classfile value(%d)"
         assert tag == classFileType:M161.format(name(), tag, classFileType);
-        this.asmType = more? null: classFileType;
+        this.asmType = type == null? null: classFileType;
     }
 
     public int tag() {

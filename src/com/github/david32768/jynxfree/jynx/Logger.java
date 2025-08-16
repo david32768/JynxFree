@@ -121,42 +121,28 @@ public class Logger {
     void log(JynxMessage msg, Object... objs) {
        LogMsgType logtype = msgType(msg);
         switch (logtype) {
-            case SEVERE:
+            case SEVERE -> {
                 printError(msg,objs);
                 printInfo(M84,type); // "%s terminated because of severe error"
                 throw new SevereError();
-            case LINE:
-                // fall through to warning
-            case STYLE:
-                // fall through to warning
-            case WARNING:
-                printLineMessage(msg,objs);
-                break;
-            case ERROR:
+            }
+            case LINE, STYLE, WARNING -> printLineMessage(msg,objs);
+            case ERROR -> {
                 printError(msg,objs);
                 if (errct > maxerr) {
                     printInfo(M85,type); // "%s terminated because of too many errors"
                     throw new SevereError();
                 }
-                break;
-            case ENDINFO:
-                addEndInfo(msg, objs);
-                break;
-            case INFO:
-                printInfo(msg,objs);
-                break;
-            case BLANK:
-                printInfo(msg,objs);
-                break;
-            case FINE:
-            case FINER:
-            case FINEST:
+            }
+            case ENDINFO -> addEndInfo(msg, objs);
+            case INFO -> printInfo(msg,objs);
+            case BLANK -> printInfo(msg,objs);
+            case FINE, FINER, FINEST -> {
                 // use INCREASE_MESSAGE_SEVERITY to print
-                break;
-            default:
-                throw new EnumConstantNotPresentException(logtype.getClass(),logtype.name());
+            }
+            default -> throw new LogUnexpectedEnumValueException(logtype);
         }
-        
+                
     }
 
     void log(String line, JynxMessage msg, Object... objs) {

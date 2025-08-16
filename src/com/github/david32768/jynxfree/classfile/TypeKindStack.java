@@ -213,7 +213,7 @@ public class TypeKindStack implements InstructionVisitor {
         switch(inst) {
             case DiscontinuedInstruction.JsrInstruction _ -> {
                 pushReference();
-                // NB the stack for label is before the following pop 
+                // NB the stack for target is before the following pop 
                 popReference();
             }
             case DiscontinuedInstruction.RetInstruction _ -> {}

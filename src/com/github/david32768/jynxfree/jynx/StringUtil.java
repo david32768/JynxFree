@@ -16,15 +16,19 @@ public class StringUtil {
     // Process Unicode escapes
     public static String unescapeUnicode(String token) {
         StringBuilder sb = new StringBuilder(token.length());
-        StringState state = StringState.QUOTE;
+        StringState nextstate = StringState.QUOTE;
         for (int i = 0;i < token.length();i++) {
             char c = token.charAt(i);
-            switch(state) {
-                case QUOTE:
-                    if (c == '\\') state = StringState.SLASH;
-                    else sb.append(c);
-                    break;
-                case SLASH:
+            StringState state = nextstate;
+            nextstate = switch(state) {
+                case QUOTE -> {
+                    if (c == '\\') yield StringState.SLASH;
+                    else {
+                        sb.append(c);
+                        yield state;
+                    }
+                }
+                case SLASH -> {
                     if (c == 'u') {
                         try {
                             String unicode = token.substring(i+1, i+5);
@@ -35,13 +39,12 @@ public class StringUtil {
                         }
                     } else sb.append('\\');
                     sb.append(c);
-                    state = StringState.QUOTE;
-                    break;
-                default:
-                    throw new LogAssertionError(M905,state); // "unexpected StringState %s"
-            }
+                    yield StringState.QUOTE;
+                }
+                default -> throw new LogUnexpectedEnumValueException(state);
+            };
         }
-        if (state == StringState.SLASH) {
+        if (nextstate == StringState.SLASH) {
             sb.append('\\');
         }
         return sb.toString();
@@ -53,19 +56,23 @@ public class StringUtil {
     // Process escape sequences
     public static String unescapeSequence(String token) {
         StringBuilder sb = new StringBuilder(token.length());
-        StringState state = StringState.QUOTE;
+        StringState nextstate = StringState.QUOTE;
         for (int i = 0;i < token.length();i++) {
             char c = token.charAt(i);
-            switch(state) {
-                case QUOTE:
+            StringState state = nextstate;
+            nextstate = switch(state) {
+                case QUOTE -> {
                     if (c == '\"') {
                         // "Embedded naked quote"
                         throw new LogIllegalArgumentException(M69);
                     }
-                    if (c == '\\') state = StringState.SLASH;
-                    else sb.append(c);
-                    break;
-                case SLASH:
+                    if (c == '\\') yield StringState.SLASH;
+                    else {
+                        sb.append(c);
+                        yield state;
+                    }
+                }
+                case SLASH -> {
                     int index = ESCAPE_TO.indexOf(c);
                     if (index >= 0) {
                         c = ESCAPE_FROM.charAt(index);
@@ -85,13 +92,12 @@ public class StringUtil {
                         }
                     }
                     sb.append(c);
-                    state = StringState.QUOTE;
-                    break;
-                default:
-                    throw new LogAssertionError(M905,state); // "unexpected StringState %s"
-            }
+                    yield StringState.QUOTE;
+                }
+                default -> throw new LogAssertionError(M905,nextstate); // "unexpected StringState %s"
+            };
         }
-        if (state != StringState.QUOTE) {
+        if (nextstate != StringState.QUOTE) {
             // "Bad escape sequence"
             throw new LogIllegalArgumentException(M83);
         }
@@ -145,9 +151,8 @@ public class StringUtil {
         return '\"' + StringEscape(token) + '\"';
     }
     
-    @SuppressWarnings("fallthrough")
     public static String[] tokenise(String line) {
-        // remove comments which start with " ;"
+        // and remove comments which start with " ;"
         ArrayList<String> tokens = new ArrayList<>();
         StringState state = StringState.BLANK;
         char quote = '"';
@@ -155,22 +160,23 @@ public class StringUtil {
         for (int i = 0; i < line.length(); ++i) {
             char c = line.charAt(i);
             switch (state) {
-                case SLASH:
+                case SLASH -> {
                     state = StringState.QUOTE;
-                    break;
-                case QUOTE:
+                    sb.append(c);
+                }
+                case QUOTE -> {
                     switch (c) {
-                        case '"': case '\'':
+                        case '"', '\'' -> {
                             if (quote == c) {
                                 state = StringState.ENDQUOTE;
                             }
-                            break;
-                        case '\\':
-                            state = StringState.SLASH;
-                            break;
+                        }
+                        case '\\' -> state = StringState.SLASH;
                     }
-                    break;
-                case ENDQUOTE:  // last character was closing quote
+                    sb.append(c);
+                }
+                case ENDQUOTE -> {
+                    // last character was closing quote
                     if (!Character.isWhitespace(c)) {
                         // "Quoted string not followed by white space; blank inserted before '%c'"
                         LOG(line,M68,c);
@@ -179,56 +185,51 @@ public class StringUtil {
                     tokens.add(sb.toString());
                     sb = new StringBuilder();
                     state = StringState.BLANK;
-                    continue;
-                case BLANK:
-                    if (Character.isWhitespace(c)) {
-                        continue;
+                }
+                case BLANK -> {
+                    if (!Character.isWhitespace(c)) {
+                        switch(c) {
+                            case ';' -> {
+                                state = StringState.COMMENT;   // ignore characters
+                            }
+                            case '"', '\'' -> {
+                                state = StringState.QUOTE;
+                                quote = c;
+                                sb.append(c);                
+                            }
+                            default-> {
+                                state = StringState.UNQUOTED;
+                                sb.append(c);                
+                            }
+                        }
                     }
-                    switch(c) {
-                        case ';':
-                            state = StringState.COMMENT;   // ignore characters
-                            continue;
-                        case '"': case '\'':
-                            state = StringState.QUOTE;
-                            quote = c;
-                            break;
-                        default:
-                            state = StringState.UNQUOTED;
-                            break;
-                    }
+                }
+                case COMMENT -> {
+                    // last token was blank semicolon i.e. comment start
                     break;
-                case COMMENT:  // last token was blank semicolon i.e. comment start
-                    continue;
-                case UNQUOTED:  // not in quoted string
+                }
+                case UNQUOTED -> {
+                    // not in quoted string
                     if (Character.isWhitespace(c)) {
                         tokens.add(sb.toString());
                         sb = new StringBuilder();
                         state = StringState.BLANK;
-                        continue;
+                    } else {
+                        sb.append(c);                
                     }
-                    break;
-                default:
-                    throw new AssertionError();
+                }
+                default -> throw new LogUnexpectedEnumValueException(state);
             }
-            sb.append(c);
         }
         switch (state) {
-            case QUOTE:
-            case SLASH:
+            case QUOTE, SLASH -> {
                 LOG(M271,sb.toString()); // "incomplete quoted string %s"
-                // fallthrough
-            case BLANK:
-            case COMMENT:
-            case ENDQUOTE:
-            case UNQUOTED:
-                if (sb.length() != 0) {
-                    tokens.add(sb.toString());
-                }
-                break;
-            default:
-                throw new EnumConstantNotPresentException((state.getClass()), state.name());
+            }
         }
-        return tokens.toArray(new String[0]);
+        if (sb.length() != 0) {
+            tokens.add(sb.toString());
+        }
+        return tokens.toArray(String[]::new);
     }
     
     public static boolean isVisibleAscii(int c) {
