@@ -38,4 +38,7 @@ jynx {options} .jx_file
    (if present .hints file only contains a Jynx .hints directive)
    (adds temporary stack map to verify pre Java V1_7 unless contains jsr,ret)
 
+upgrade {options}  class-name|class_file|zip-file|jar-file directory-for-upgraded-class(es)
+   (upgrades class to Java Version 7)
+
 ```
