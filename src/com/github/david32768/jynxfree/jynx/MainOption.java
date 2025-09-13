@@ -13,7 +13,6 @@ import static com.github.david32768.jynxfree.jynx.MainConstants.*;
 
 import static com.github.david32768.jynxfree.jynx.Global.LOG;
 
-import static com.github.david32768.jynxfree.my.Message.M219;
 import static com.github.david32768.jynxfree.my.Message.M331;
 import static com.github.david32768.jynxfree.my.Message.M4;
 import static com.github.david32768.jynxfree.my.Message.M6;
@@ -32,6 +31,13 @@ public enum MainOption {
                 VALHALLA, GENERIC_SWITCH,
                 __STRUCTURED_LABELS, __WARN_INDENT)
     ),
+    COMPARE("compare",
+        " {options}  class-name|class_file class-name|class_file",
+        List.of(
+            "checks that classes are the same according to ASM Textifier"
+        ),
+        EnumSet.of(USE_STACK_MAP, DEBUG)
+    ),
     DISASSEMBLY("tojynx",
         String.format(" {options}  class-name|class_file > %s_file", JX_SUFFIX),
         List.of(
@@ -40,7 +46,7 @@ public enum MainOption {
                     ASSEMBLY.extname.toUpperCase(), Directive.dir_version)
         ),
         EnumSet.of(SKIP_CODE, SKIP_DEBUG, SKIP_FRAMES, SKIP_ANNOTATIONS, DOWN_CAST,
-                VALHALLA, SKIP_STACK, UPGRADE_TO_V6,
+                VALHALLA, SKIP_STACK, UPGRADE_TO_V7,
                 DEBUG, INCREASE_MESSAGE_SEVERITY)
     ),
     ROUNDTRIP("roundtrip",
@@ -61,10 +67,10 @@ public enum MainOption {
         ),
         EnumSet.of(DETAIL, OMIT_COMMENT, DEBUG, VALHALLA)
     ),
-    COMPARE("compare",
-        " {options}  class-name|class_file class-name|class_file",
+    UPGRADE("upgrade",
+        " {options}  class-name|class_file|zip-file|jar-file directory-for-upgraded-class(es)",
         List.of(
-            "checks that classes are the same according to ASM Textifier"
+            "upgrades class to Java Version 7"
         ),
         EnumSet.of(DEBUG)
     ),
@@ -82,7 +88,7 @@ public enum MainOption {
 
     private final static int JYNX_VERSION = 0;
     private final static int JYNX_RELEASE = 24;
-    private final static int JYNX_BUILD = 4;
+    private final static int JYNX_BUILD = 5;
 
     private final int version;
     private final int release;
@@ -108,8 +114,7 @@ public enum MainOption {
             boolean success;
             try {
                 success = main.call(pw, args);
-            } catch(UnsupportedOperationException ex) {
-                LOG(M219,Arrays.asList(args)); // "wrong number of parameters after options %s"
+            } catch(LogUnsupportedOperationException ex) {
                 return false;
             } catch (Exception ex) {
                 LOG(ex);

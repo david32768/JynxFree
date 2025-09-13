@@ -90,20 +90,26 @@ public class Logger {
         endinfo.add(msg.format(args));
     }
     
-    boolean printEndInfo(String classname){
+    boolean printEndInfo(Object parms){
+        errct = printEndInfo();
+        if (errct == 0) {
+             // "%s of %s completed successfully"
+            printInfo(M104, type, parms);
+        } else {
+             // "%s of %s completed  unsuccesfully - number of errors is %d"
+            printInfo(M131, type, parms, errct);
+        }
+        currentLine = null;
+        return errct == 0;
+    }
+
+    private int printEndInfo(){
         System.err.println();
         for (String msg:endinfo) {
             System.err.println(msg);
         }
         endinfo.clear();
-        if (errct == 0) {
-            printInfo(M104,classname,type); // "class %s %s completed successfully"
-        } else {
-             // "class %s %s completed  unsuccesfully - number of errors is %d"
-            printInfo(M131,classname,type,errct);
-        }
-        currentLine = null;
-        return errct == 0;
+        return errct;
     }
 
     private static LogMsgType msgType(JynxMessage msg) {

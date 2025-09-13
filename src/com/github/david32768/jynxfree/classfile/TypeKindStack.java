@@ -12,6 +12,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static com.github.david32768.jynxfree.my.Message.M638;
+import static com.github.david32768.jynxfree.my.Message.M639;
+import static com.github.david32768.jynxfree.my.Message.M640;
+
+import com.github.david32768.jynxfree.jynx.LogIllegalArgumentException;
 
 public class TypeKindStack implements InstructionVisitor {
 
@@ -21,14 +26,12 @@ public class TypeKindStack implements InstructionVisitor {
             Objects.requireNonNull(top);
             Objects.requireNonNull(next);
             if (top.slotSize() + next.slotSize() != 2) {
-                String msg = String.format(
-                        "sum of slot sizes for top (%s = %d) and next (%s = %d) not equal to 2",
-                        top, top.slotSize(), next, next.slotSize());
-                throw new IllegalArgumentException(msg);
+                // "sum of slot sizes for top (%s = %d) and next (%s = %d) not equal to 2"
+                throw new LogIllegalArgumentException(M638, top, top.slotSize(), next, next.slotSize());
             }
             if (top == TypeKind.VOID) {
-                String msg = "top TypeKind cannot be VoidType";
-                throw new IllegalArgumentException(msg);
+                // "top TypeKind cannot be VoidType"
+                throw new LogIllegalArgumentException(M639);
             }
         }
     }
@@ -38,9 +41,8 @@ public class TypeKindStack implements InstructionVisitor {
         public OneSlot {
             Objects.requireNonNull(top);
             if (top.slotSize() != 1) {
-                String msg = String.format("top slot size for (%s = %d) not 1",
-                        top, top.slotSize());
-                throw new IllegalArgumentException(msg);
+                // "top slot size for (%s = %d) not 1"
+                throw new LogIllegalArgumentException(M640, top, top.slotSize());
             }
        }
     }

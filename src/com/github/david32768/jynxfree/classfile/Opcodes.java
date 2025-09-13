@@ -7,6 +7,10 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
+import static com.github.david32768.jynxfree.my.Message.M643;
+
+import com.github.david32768.jynxfree.jynx.LogIllegalArgumentException;
+
 public class Opcodes {
     
     private Opcodes(){}
@@ -78,9 +82,18 @@ public class Opcodes {
         return name.substring(index + 1);
     }
     
+    private static final EnumSet<Opcode> RETURNS = EnumSet.of(
+            Opcode.ARETURN,
+            Opcode.IRETURN,
+            Opcode.LRETURN,
+            Opcode.FRETURN,
+            Opcode.DRETURN,
+            Opcode.RETURN
+    );
     
-    public boolean isReturn(Opcode opcode) {
-        return opcode.name().contains("RETURN");
+    
+    public static boolean isReturn(Opcode opcode) {
+        return RETURNS.contains(opcode);
     }
     
     private static final EnumSet<Opcode> GO = EnumSet.of(
@@ -93,8 +106,31 @@ public class Opcodes {
             Opcode.TABLESWITCH
     );
     
-    public boolean isUnconditional(Opcode opcode) {
+    public static boolean isUnconditional(Opcode opcode) {
         return GO.contains(opcode) || isReturn(opcode);
     }
     
+    public static Opcode oppositeBranch(Opcode opcode) {
+        return switch (opcode) {
+            case IFNULL -> Opcode.IFNONNULL;
+            case IFNONNULL -> Opcode.IFNULL;
+            case IFEQ -> Opcode.IFNE;
+            case IFNE -> Opcode.IFEQ;
+            case IFLT -> Opcode.IFGE;
+            case IFGE -> Opcode.IFLT;
+            case IFLE -> Opcode.IFGT;
+            case IFGT -> Opcode.IFLE;
+            case IF_ACMPEQ -> Opcode.IF_ACMPNE;
+            case IF_ACMPNE -> Opcode.IF_ACMPEQ;
+            case IF_ICMPEQ -> Opcode.IF_ICMPNE;
+            case IF_ICMPNE -> Opcode.IF_ICMPEQ;
+            case IF_ICMPLT -> Opcode.IF_ICMPGE;
+            case IF_ICMPGE -> Opcode.IF_ICMPLT;
+            case IF_ICMPLE -> Opcode.IF_ICMPGT;
+            case IF_ICMPGT -> Opcode.IF_ICMPLE;
+            default -> 
+                // "no opposite branch for %s"
+                throw new LogIllegalArgumentException(M643, opcode);
+        };
+    }
 }

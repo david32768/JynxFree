@@ -2,10 +2,12 @@ package com.github.david32768.jynxfree.jynx;
 
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import static com.github.david32768.jynxfree.my.Message.M32;
+import static com.github.david32768.jynxfree.my.Message.M343;
 import static com.github.david32768.jynxfree.my.Message.M73;
 import static com.github.david32768.jynxfree.my.Message.M999;
 
@@ -14,37 +16,50 @@ import com.github.david32768.jynxfree.jvm.JvmVersion;
 import com.github.david32768.jynxfree.jvm.JvmVersioned;
 
 public class Global {
-
+    
+    private final MainOption main;    
     private final Logger logger;
     private final EnumSet<GlobalOption> options;
+    private final Global last;
+    
     private JvmVersion jvmVersion;
-    private String classname;
-    private final MainOption main;
-    
-    private Translator ttanslator;
-    private StyleChecker styleChecker;
-    
+
     private Global() {
         this.options = EnumSet.of(GlobalOption.DEBUG);
         this.logger  = new Logger("");
         this.jvmVersion = null;
-        this.classname = null;
         this.main = null;
-        this.styleChecker = null;
+        this.last = null;
     }
 
-    private Global(MainOption type, EnumSet<GlobalOption> options) {
+    private Global(MainOption type, EnumSet<GlobalOption> options, Global last) {
         this.main = type;
         this.options = options;
         this.logger  = new Logger(type.name().toLowerCase());
         this.jvmVersion = null;
+        this.last = last;
     }
     
     private static Global global = new Global();
     
     public static void newGlobal(MainOption type) {
-        global = new Global(type, EnumSet.noneOf(GlobalOption.class));
+        global = new Global(type, EnumSet.noneOf(GlobalOption.class), null);
         type.printHeader();
+    }
+    
+    public static void pushGlobal(MainOption type) {
+        var options = OPTIONS();
+        global = new Global(type, EnumSet.noneOf(GlobalOption.class), global);
+        type.printHeader();
+        ADD_RELEVENT_OPTIONS(options);
+    }
+    
+    public static void popGlobal() {
+        if (global.last == null) {
+            // "unable to pop global as stack empty"
+            throw new LogIllegalStateException(M343);
+        }
+        global = global.last;
     }
     
     public static Logger LOGGER() {
@@ -56,36 +71,9 @@ public class Global {
         global.jvmVersion = jvmversion;
     }
     
-    public static void setStyleChecker(StyleChecker checker) {
-        assert global.styleChecker == null;
-        global.styleChecker = checker;
-    }
-    
-    public static void setTranslator(Translator translator) {
-        assert global.ttanslator == null;
-        global.ttanslator = translator;
-    }
-    
-    public static void setClassName(String classname) {
-        assert global.classname == null;
-        global.classname = classname;
-    }
-    
     public static JvmVersion JVM_VERSION() {
         assert Objects.nonNull(global.jvmVersion);
         return global.jvmVersion;
-    }
-    
-    public static String CLASS_NAME() {
-        Objects.nonNull(global.classname);
-        return global.classname;
-    }
-
-    public static boolean CHECK_STYLE(Style style, String str) {
-        if (style != null && global.styleChecker != null) {
-            style.check(global.styleChecker, str);
-        }
-        return true;
     }
     
     public static boolean CHECK_SUPPORTS(JvmVersioned feature) {
@@ -197,23 +185,12 @@ public class Global {
         return global.logger.printEndInfo(classname);
     }
     
+    public static boolean END_MESSAGES(List<String> parms) {
+        return global.logger.printEndInfo(parms);
+    }
+    
     public static MainOption MAIN_OPTION() {
         return global.main;
     }
 
-    public static String TRANSLATE_DESC(String str) {
-        return global.ttanslator.translateDesc(CLASS_NAME(),str);
-    }
-    
-    public static String TRANSLATE_PARMS(String str) {
-        return global.ttanslator.translateParms(CLASS_NAME(),str);
-    }
-    
-    public static String TRANSLATE_TYPE(String str, boolean semi) {
-        return global.ttanslator.translateType(CLASS_NAME(),str, semi);
-    }
-    
-    public static String TRANSLATE_OWNER(String str) {
-        return global.ttanslator.translateOwner(CLASS_NAME(),str);
-    }
 }

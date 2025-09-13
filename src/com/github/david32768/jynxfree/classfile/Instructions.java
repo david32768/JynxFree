@@ -10,11 +10,20 @@ import java.lang.classfile.instruction.LoadInstruction;
 import java.lang.classfile.instruction.LookupSwitchInstruction;
 import java.lang.classfile.instruction.OperatorInstruction;
 import java.lang.classfile.instruction.StoreInstruction;
+import java.lang.classfile.instruction.SwitchCase;
 import java.lang.classfile.instruction.TableSwitchInstruction;
 import java.lang.classfile.Opcode;
+
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import static com.github.david32768.jynxfree.my.Message.M629;
+import static com.github.david32768.jynxfree.my.Message.M630;
+import static com.github.david32768.jynxfree.my.Message.M631;
+
+import com.github.david32768.jynxfree.jynx.LogIllegalArgumentException;
 
 public class Instructions {
     
@@ -73,23 +82,50 @@ public class Instructions {
 
     private Instructions() {}
     
-    private static final EnumSet<Opcode> UNCONDITIONAL = EnumSet.of(GOTO, GOTO_W,
-            TABLESWITCH, LOOKUPSWITCH, ATHROW,
-            ARETURN, IRETURN , LRETURN, FRETURN, DRETURN, RETURN,
-            RET, RET_W);
-    
-    public static boolean isUnconditional(Opcode op) {
-        return UNCONDITIONAL.contains(op);
-    }
-
+    private static final int MAX_CODESIZE = 2*Short.MAX_VALUE + 1; // unsigned short max value
+        
     public static int sizeOfAt(Instruction instruction, int offset) {
         var op = instruction.opcode();
-        int padding = 3 - (offset & 3);
         return switch(instruction) {
-            case LookupSwitchInstruction swinst -> 1 + padding + 4 + 4 + 8*swinst.cases().size();                    
-            case TableSwitchInstruction swinst -> 1 + padding + 4 + 4 + 4 + 4*swinst.cases().size();
+            case LookupSwitchInstruction swinst -> 
+                getAndCheckLookupSwitchSize(swinst.cases(), offset);
+            case TableSwitchInstruction swinst -> 
+                getAndCheckTableSwitchSize(swinst.lowValue(), swinst.highValue(), offset);
             default -> op.sizeIfFixed();
         };
+    }
+
+    private static int getAndCheckLookupSwitchSize(List<SwitchCase> cases, int offset) {
+        long size = getLookupSwitchSize(cases, offset);
+        if (size > MAX_CODESIZE) {
+            // "number of cases %d is too large at any offset"
+            throw new LogIllegalArgumentException(M629, cases.size());                    
+        }
+        return (int)size;
+    }
+
+    static long getLookupSwitchSize(List<SwitchCase> cases, int offset) {
+        int padding = 3 - (offset & 3);
+        return 1L + padding + 4 + 4 + 8L*cases.size();
+    }
+    
+    private static int getAndCheckTableSwitchSize(int low, int high, int offset) {
+        long size = getTableSwitchSize(low, high, offset);
+        if (size > MAX_CODESIZE) {
+            // "range [%d, %d] is too large at any offset"
+            throw new LogIllegalArgumentException(M630, low, high);
+        }
+        return (int)size;
+    }
+    
+    static long getTableSwitchSize(int low, int high, int offset) {
+        int padding = 3 - (offset & 3);
+        long cases = 1L + high - low;
+        if (cases <= 0) {
+            // "low(%d) > high(%d)"
+            throw new LogIllegalArgumentException(M631 , low, high);
+        }
+        return 1L + padding + 4 + 4 + 4 + 4*cases;
     }
 
     private static final int GOTO_W_SIZE = Opcode.GOTO_W.sizeIfFixed();
@@ -122,25 +158,4 @@ public class Instructions {
         return Optional.ofNullable(slot);
     }
 
-    public static Opcode oppositeBranch(Opcode opcode) {
-        return switch (opcode) {
-            case IFNULL -> IFNONNULL;
-            case IFNONNULL -> IFNULL;
-            case IFEQ -> IFNE;
-            case IFNE -> IFEQ;
-            case IFLT -> IFGE;
-            case IFGE -> IFLT;
-            case IFLE -> IFGT;
-            case IFGT -> IFLE;
-            case IF_ACMPEQ -> IF_ACMPNE;
-            case IF_ACMPNE -> IF_ACMPEQ;
-            case IF_ICMPEQ -> IF_ICMPNE;
-            case IF_ICMPNE -> IF_ICMPEQ;
-            case IF_ICMPLT -> IF_ICMPGE;
-            case IF_ICMPGE -> IF_ICMPLT;
-            case IF_ICMPLE -> IF_ICMPGT;
-            case IF_ICMPGT -> IF_ICMPLE;
-            default -> throw new IllegalArgumentException("no opposite branch for " + opcode);
-        };
-    }
 }

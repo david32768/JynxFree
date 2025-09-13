@@ -101,10 +101,7 @@ public class Main {
             success = false;
         }
         if (!success) {
-            String classname = CLASS_NAME();
-            if (classname == null) {
-                classname = Arrays.asList(mainargs).toString();
-            }
+            String classname = Arrays.asList(mainargs).toString();
             LOG(M298,main.name(),classname); // "%s of %s failed"
         }
         return success;

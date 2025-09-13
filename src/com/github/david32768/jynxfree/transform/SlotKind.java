@@ -17,22 +17,21 @@ public record SlotKind(int slot, TypeKind kind) {
     }
     
     public static List<SlotKind> OfParameters(MethodModel mm) {
-        List slotlist = new ArrayList();
-        int next = 0;
+        List<SlotKind> slotlist = new ArrayList<>();
         if (!mm.flags().flags().contains(AccessFlag.STATIC)) {
-            slotlist.add(new SlotKind(next,TypeKind.REFERENCE));
-            ++next;
+            slotlist.add(new SlotKind(0, TypeKind.REFERENCE));
         }
         for (var klass : mm.methodTypeSymbol().parameterList()) {
+            int next = slotlist.size();
             TypeKind kind = TypeKind.fromDescriptor(klass.descriptorString());
-            slotlist.add(new SlotKind(next, kind));
-            ++next;
             switch(kind) {
                 case DOUBLE, LONG -> {
-                    slotlist.add(new SlotKind(next, TypeKind.VOID));
-                    ++next;
+                    slotlist.add(new SlotKind(next, kind));
+                    slotlist.add(new SlotKind(next + 1, TypeKind.VOID));
                 }
-                default ->{}
+                default -> {
+                    slotlist.add(new SlotKind(next, kind));
+                }
             }
         }
         return slotlist;

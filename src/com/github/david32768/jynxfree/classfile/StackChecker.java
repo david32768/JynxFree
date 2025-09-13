@@ -24,6 +24,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.github.david32768.jynxfree.my.Message.M641;
+import static com.github.david32768.jynxfree.my.Message.M642;
+
+import com.github.david32768.jynxfree.jynx.LogAssertionError;
+import com.github.david32768.jynxfree.jynx.LogIllegalStateException;
 
 public class StackChecker {
 
@@ -105,7 +110,9 @@ public class StackChecker {
             case FLOAT -> "F";
             case DOUBLE -> "D";
             case REFERENCE -> "Ljava/lang/Object;";
-            default -> throw new AssertionError("unexpected TypeKind for stack: " + stacktype);
+            default -> 
+                // "unexpected TypeKind for stack: %s"
+                throw new LogAssertionError(M642, stacktype);
         };
     }
     
@@ -117,7 +124,8 @@ public class StackChecker {
         if (lastGoto) {
             subroutine = true;
         } else if (stack.peek() != TypeKind.REFERENCE){
-            throw new IllegalStateException("subroutine top of stack is not reference");
+            // "subroutine top of stack is not reference"
+            throw new LogIllegalStateException(M641);
         }
     }
     
@@ -160,7 +168,8 @@ public class StackChecker {
         }
         afterGotoLabels.clear();
         if (subroutine && stack.peek() != TypeKind.REFERENCE){
-            throw new IllegalStateException("subroutine top of stack is not reference");
+            // "subroutine top of stack is not reference"
+            throw new LogIllegalStateException(M641);
         }
         subroutine = false;
     }
@@ -243,7 +252,7 @@ public class StackChecker {
 
         adjustStackForInstruction(instruction);
         
-        if (Instructions.isUnconditional(op)) {
+        if (Opcodes.isUnconditional(op)) {
             lastGoto = true;
             stack.clear();
         }

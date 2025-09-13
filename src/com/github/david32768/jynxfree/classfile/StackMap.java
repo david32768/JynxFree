@@ -17,28 +17,45 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class StackMap {
     
-    public final static StackMap NONE = new StackMap(Collections.emptyMap(), Collections.emptyList());
+    public final static StackMap NONE = new StackMap(Collections.emptyMap(), null);
     
     private final Map<Label,StackMapFrameInfo> stackMapInfo;
-    private final List<StackMapFrameInfo.VerificationTypeInfo> initialLocals;
+    private final MethodModel method;
+
+    public StackMap(Map<Label, StackMapFrameInfo> stackMapInfo, MethodModel method) {
+        this.stackMapInfo = stackMapInfo;
+        this.method = method;
+    }
     
 
-    private StackMap(Map<Label,StackMapFrameInfo> stackMapInfo, List<StackMapFrameInfo.VerificationTypeInfo> initialLocals) {
-        this.stackMapInfo = stackMapInfo;
-        this.initialLocals = initialLocals;
+    public static StackMap of(MethodModel mm) {
+        var infolist = frameInfoOf(mm);
+        var info = getStackMap(infolist);
+        return new StackMap(info, mm);
     }
     
-    public static StackMap of(ClassDesc classDesc, MethodModel mm, CodeAttribute codeAttribute) {
-        Objects.requireNonNull(codeAttribute);
-        var info = getStackMap(codeAttribute.findAttribute(Attributes.stackMapTable()).orElse(null));
-        var init = locals(classDesc, mm);
-        return new StackMap(info, init);
+    private static List<StackMapFrameInfo> frameInfoOf(MethodModel mm) {
+        return mm.attributes().stream()
+                .filter(attr -> attr instanceof CodeAttribute)
+                .map(attr -> (CodeAttribute)attr)
+                .flatMap(attr -> attr.findAttribute(Attributes.stackMapTable()).stream())
+                .findAny()
+                .map(StackMapTableAttribute::entries)
+                .orElse(Collections.emptyList());        
     }
     
+    private static Map<Label,StackMapFrameInfo> getStackMap(List<StackMapFrameInfo> infolist) {
+        Map<Label,StackMapFrameInfo> stackmapinfo = new HashMap<>();
+        for (var info : infolist) {
+            var mustBeNull = stackmapinfo.put(info.target(), info);
+            assert mustBeNull == null;
+        }
+        return stackmapinfo;
+    }
+
     public static int slotSize(VerificationTypeInfo info) {
         return switch (info) {
             case SimpleVerificationTypeInfo.DOUBLE -> 2;
@@ -58,25 +75,15 @@ public class StackMap {
         };        
     }
     
-    private static Map<Label,StackMapFrameInfo> getStackMap(StackMapTableAttribute attr) {
-        Map<Label,StackMapFrameInfo> stackmapinfo = new HashMap<>();
-        if (attr != null) {
-            for (var info : attr.entries()) {
-                var mustBeNull = stackmapinfo.put(info.target(), info);
-                assert mustBeNull == null;
-            }
-        }
-        return stackmapinfo;
-    }
-    
-    private  static List<VerificationTypeInfo> locals(ClassDesc classDesc, MethodModel mm) {
-        var parms = mm.methodTypeSymbol().parameterList();
+    public List<VerificationTypeInfo> initialLocals() {
+        var parms = method.methodTypeSymbol().parameterList();
         List<StackMapFrameInfo.VerificationTypeInfo> result = new ArrayList<>();
-        if (!mm.flags().has(AccessFlag.STATIC)) {
-            String mname = mm.methodName().stringValue();
+        if (!method.flags().has(AccessFlag.STATIC)) {
+            String mname = method.methodName().stringValue();
             if (mname.equals("<init>")) {
                 result.add(SimpleVerificationTypeInfo.UNINITIALIZED_THIS);
             } else {
+                var classDesc = method.parent().get().thisClass().asSymbol();
                 result.add(verificationTypeInfoOf(classDesc));
             }
         }
@@ -102,10 +109,6 @@ public class StackMap {
         }        
     }
 
-    public List<VerificationTypeInfo> initialLocals() {
-        return initialLocals;
-    }
-    
     public List<VerificationTypeInfo> stackFrameFor(Label label) {
         var info = stackMapInfo.get(label);
         return info == null? null: info.stack();

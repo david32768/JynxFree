@@ -9,7 +9,6 @@ import static com.github.david32768.jynxfree.my.Message.*;
 import static com.github.david32768.jynxfree.jvm.AccessFlag.acc_final;
 import static com.github.david32768.jynxfree.jvm.AccessFlag.acc_static;
 import static com.github.david32768.jynxfree.jvm.AccessFlag.acc_synthetic;
-import static com.github.david32768.jynxfree.jynx.Global.CHECK_STYLE;
 import static com.github.david32768.jynxfree.jynx.Global.LOG;
 import static com.github.david32768.jynxfree.jynx.Global.OPTION;
 import static com.github.david32768.jynxfree.jynx.GlobalOption.WARN_STYLE;
@@ -141,7 +140,7 @@ public enum NameDesc {
         boolean ok = isValid(str);
         if (ok) {
             if (style != null) {
-                CHECK_STYLE(style, str);
+                style.check(str);
             }
         } else {
             LOG(M66,this,str);   // "invalid %s: %s"
