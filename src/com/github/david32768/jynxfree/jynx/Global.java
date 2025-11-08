@@ -8,7 +8,11 @@ import java.util.Optional;
 
 import static com.github.david32768.jynxfree.my.Message.M32;
 import static com.github.david32768.jynxfree.my.Message.M343;
+import static com.github.david32768.jynxfree.my.Message.M67;
 import static com.github.david32768.jynxfree.my.Message.M73;
+import static com.github.david32768.jynxfree.my.Message.M74;
+import static com.github.david32768.jynxfree.my.Message.M81;
+import static com.github.david32768.jynxfree.my.Message.M82;
 import static com.github.david32768.jynxfree.my.Message.M999;
 
 import com.github.david32768.jynxfree.jvm.ConstantPoolType;
@@ -20,12 +24,14 @@ public class Global {
     private final MainOption main;    
     private final Logger logger;
     private final EnumSet<GlobalOption> options;
+    private final EnumSet<GlobalOption> addedOptions;
     private final Global last;
     
     private JvmVersion jvmVersion;
 
     private Global() {
         this.options = EnumSet.of(GlobalOption.DEBUG);
+        this.addedOptions = EnumSet.noneOf(GlobalOption.class);
         this.logger  = new Logger("");
         this.jvmVersion = null;
         this.main = null;
@@ -35,6 +41,7 @@ public class Global {
     private Global(MainOption type, EnumSet<GlobalOption> options, Global last) {
         this.main = type;
         this.options = options;
+        this.addedOptions = EnumSet.noneOf(GlobalOption.class);
         this.logger  = new Logger(type.name().toLowerCase());
         this.jvmVersion = null;
         this.last = last;
@@ -52,6 +59,7 @@ public class Global {
         global = new Global(type, EnumSet.noneOf(GlobalOption.class), global);
         type.printHeader();
         ADD_RELEVENT_OPTIONS(options);
+        printOptions();
     }
     
     public static void popGlobal() {
@@ -99,7 +107,11 @@ public class Global {
     
     public static boolean ADD_OPTION(GlobalOption option) {
         if (global.main.usesOption(option)) {
-            return global.options.add(option);
+            boolean added = global.options.add(option); 
+            if (added) {
+                global.addedOptions.add(option);
+            }
+            return added;
         } else {
             LOG(M73,option); // "irrelevant option %s ignored"
             return false;
@@ -126,6 +138,16 @@ public class Global {
     }
     
     public static String[] setOptions(String[] args) {
+        String[] parms = setOptionsImpl(args);
+        global.addedOptions.clear();
+        // "options are %s"
+        LOG(M74, OPTIONS());
+        // "parameters are %s"
+        LOG(M67, Arrays.toString(parms));
+        return parms;
+    }
+
+    private static String[] setOptionsImpl(String[] args) {
         int i = 0;
         for (; i < args.length; ++i) {
             String argi = args[i];
@@ -147,6 +169,20 @@ public class Global {
         return new String[0];
     }
 
+    public static void printOptions() {
+        global.addedOptions.clear();
+        // "options are %s"
+        LOG(M81,global.options);
+    }
+    
+    public static void printAddedOptions() {
+        if (!global.addedOptions.isEmpty()) {
+            // "added options are %s"
+            LOG(M82,global.addedOptions);
+            global.addedOptions.clear();
+        }
+    }
+    
     public static void LOG(JynxMessage msg,Object... objs) {
         global.logger.log(msg,objs);
     }

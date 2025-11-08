@@ -24,7 +24,6 @@ public enum GlobalOption {
     TRACE(M23), // "print (ASMifier) trace"
     SYMBOLIC_LOCAL(M44), // "local variables are symbolic not absolute integers"
 
-    VALHALLA(M601), // "Valhalla - limited support; may change"
     VERIFIER_PLATFORM(M37), // "Use ClassFile Verifier with Platform Loader only (the default is system loader)"
     
     UPGRADE_TO_V7(M11), // "upgrade version to Version V1_7"
@@ -35,9 +34,12 @@ public enum GlobalOption {
     DOWN_CAST(M14), // "if necessary reduces JVM release to maximum supported by ASM version"
     GENERIC_SWITCH(M148), // "optimise switch instruction size"
     SKIP_STACK(M609), // "do not print stack after each instruction"
+    VALHALLA(M601), // "Valhalla - limited support; may change"
     
     DEBUG(M13), // "print stack trace(s)"
-    DETAIL(M17),  // "prints constant pool, instructions and other detail"
+    DETAIL(M17),  // "print constant pool, instructions and other detail"
+    DETAIL_CONSTANT_POOL(M531), // "print constant pool detail"
+    DETAIL_INSTRUCTIONS(M532), // "print instructions"
     OMIT_COMMENT(M528), // "omit start and length values"
     INCREASE_MESSAGE_SEVERITY(M25), // "treat warnings as errors etc."
     SUPPRESS_WARNINGS(M27), // "suppress warnings"

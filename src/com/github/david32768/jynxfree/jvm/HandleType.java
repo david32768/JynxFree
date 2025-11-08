@@ -59,6 +59,8 @@ public enum HandleType {
         return mnemonic;
     }
 
+    public final static char SEP = ':';
+    
     public String getPrefix() {
         return mnemonic + SEP;
     }
@@ -88,9 +90,13 @@ public enum HandleType {
                 || other == REF_invokeSpecial && this == REF_invokeVirtual;
     }
     
+    public String abbrev() {
+        return name().substring(name().indexOf('_') + 1);
+    }
+    
     @Override
     public String toString() {
-        return String.format("%s: (=%s)",mnemonic,name().replace("REF_",""));
+        return String.format("%s (=%s)", getPrefix(), abbrev());
     }
 
     public static HandleType getInstance(int reftype) {
@@ -117,12 +123,9 @@ public enum HandleType {
                 .get();
     }
 
-    public final static char SEP = ':';
-    
     public static String getPrefix(int tag) {
-        HandleType ht = getInstance(tag); 
-        String htype = ht.getMnemonic();
-        return htype + SEP;
+        HandleType ht = getInstance(tag);
+        return ht.getPrefix();
     }
 
     private static ConstantPoolType getConstantPoolType(Kind kind) {

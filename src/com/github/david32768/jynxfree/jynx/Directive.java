@@ -26,6 +26,8 @@ public enum Directive implements JvmVersioned {
     dir_record(CLASSHDR, EnumSet.of(START_BLOCK, END_START),Record),
     dir_package(PACKAGEHDR, EnumSet.of(START_BLOCK, END_START)),
     dir_define_annotation(CLASSHDR, EnumSet.of(START_BLOCK, END_START), AnnotationDefault),
+    dir_value_class(CLASSHDR, EnumSet.of(START_BLOCK, END_START), Feature.value),
+    dir_value_record(CLASSHDR, EnumSet.of(START_BLOCK, END_START), Feature.value),
 
     dir_super(true,HEADER, EnumSet.of(CLASSHDR, PACKAGEHDR)),
     dir_implements(true,HEADER, EnumSet.of(CLASSHDR)),
@@ -38,12 +40,15 @@ public enum Directive implements JvmVersioned {
     dir_inner_enum(HEADER, EnumSet.of(CLASSHDR, PACKAGEHDR, MODULEHDR),InnerClasses),
     dir_inner_record(HEADER, EnumSet.of(CLASSHDR, PACKAGEHDR, MODULEHDR),InnerClasses),
     dir_inner_define_annotation(HEADER, EnumSet.of(CLASSHDR, PACKAGEHDR, MODULEHDR),InnerClasses),
+    dir_inner_value_class(HEADER, EnumSet.of(CLASSHDR, PACKAGEHDR, MODULEHDR), Feature.value),
+    dir_inner_value_record(HEADER, EnumSet.of(CLASSHDR, PACKAGEHDR, MODULEHDR), Feature.value),
 
     dir_nesthost(true, HEADER, EnumSet.of(CLASSHDR), NestHost),
     dir_nestmember(true,HEADER, EnumSet.of(CLASSHDR), NestMembers),
     dir_permittedSubclass(true,HEADER, EnumSet.of(CLASSHDR), PermittedSubclasses),
     dir_enclosing_method(true, HEADER, EnumSet.of(CLASSHDR), EnclosingMethod),
     dir_outer_class(true, HEADER, EnumSet.of(CLASSHDR), EnclosingMethod),
+    dir_descriptors(true, HEADER, EnumSet.of(CLASSHDR), LoadableDescriptors),
     dir_hints(HEADER, EnumSet.of(CLASSHDR)),
 
     dir_comment(COMMON,EnumSet.allOf(State.class)),

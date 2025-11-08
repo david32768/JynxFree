@@ -91,8 +91,9 @@ public class Logger {
     }
     
     boolean printEndInfo(Object parms){
-        errct = printEndInfo();
-        if (errct == 0) {
+        printEndInfo();
+        boolean ok = errct == 0;
+        if (ok) {
              // "%s of %s completed successfully"
             printInfo(M104, type, parms);
         } else {
@@ -100,16 +101,16 @@ public class Logger {
             printInfo(M131, type, parms, errct);
         }
         currentLine = null;
-        return errct == 0;
+        errct = 0;
+        return ok;
     }
 
-    private int printEndInfo(){
+    private void printEndInfo(){
         System.err.println();
         for (String msg:endinfo) {
             System.err.println(msg);
         }
         endinfo.clear();
-        return errct;
     }
 
     private static LogMsgType msgType(JynxMessage msg) {

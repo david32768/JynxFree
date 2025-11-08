@@ -28,7 +28,7 @@ public enum MainOption {
                 GENERATE_LINE_NUMBERS, BASIC_VERIFIER, VERIFIER_PLATFORM,
                 CHECK_REFERENCES, VALIDATE_ONLY, TRACE, SYMBOLIC_LOCAL,
                 DEBUG, INCREASE_MESSAGE_SEVERITY, SUPPRESS_WARNINGS,
-                VALHALLA, GENERIC_SWITCH,
+                GENERIC_SWITCH,
                 __STRUCTURED_LABELS, __WARN_INDENT)
     ),
     COMPARE("compare",
@@ -36,7 +36,7 @@ public enum MainOption {
         List.of(
             "checks that classes are the same according to ASM Textifier"
         ),
-        EnumSet.of(USE_STACK_MAP, DEBUG)
+        EnumSet.of(DEBUG, SKIP_FRAMES)
     ),
     DISASSEMBLY("tojynx",
         String.format(" {options}  class-name|class_file > %s_file", JX_SUFFIX),
@@ -46,7 +46,7 @@ public enum MainOption {
                     ASSEMBLY.extname.toUpperCase(), Directive.dir_version)
         ),
         EnumSet.of(SKIP_CODE, SKIP_DEBUG, SKIP_FRAMES, SKIP_ANNOTATIONS, DOWN_CAST,
-                VALHALLA, SKIP_STACK, UPGRADE_TO_V7,
+                SKIP_STACK, UPGRADE_TO_V7, VALHALLA,
                 DEBUG, INCREASE_MESSAGE_SEVERITY)
     ),
     ROUNDTRIP("roundtrip",
@@ -57,7 +57,7 @@ public enum MainOption {
             "according to ASM Textifier",
             "txt-file is a .txt file containing [ {options} [class-name|class-file] ]*"    
         ),
-        EnumSet.of(USE_STACK_MAP, BASIC_VERIFIER, VERIFIER_PLATFORM,
+        EnumSet.of(USE_STACK_MAP, BASIC_VERIFIER, VERIFIER_PLATFORM, VALHALLA,
                 SKIP_FRAMES, DOWN_CAST, DEBUG, SUPPRESS_WARNINGS)
     ),
     STRUCTURE("structure",
@@ -65,7 +65,7 @@ public enum MainOption {
         List.of(
             "prints a skeleton of class structure"
         ),
-        EnumSet.of(DETAIL, OMIT_COMMENT, DEBUG, VALHALLA)
+        EnumSet.of(DETAIL, DETAIL_CONSTANT_POOL, DETAIL_INSTRUCTIONS, OMIT_COMMENT, DEBUG, VALHALLA)
     ),
     UPGRADE("upgrade",
         " {options}  class-name|class_file|zip-file|jar-file directory-for-upgraded-class(es)",
@@ -87,8 +87,8 @@ public enum MainOption {
     ;
 
     private final static int JYNX_VERSION = 0;
-    private final static int JYNX_RELEASE = 24;
-    private final static int JYNX_BUILD = 5;
+    private final static int JYNX_RELEASE = 25;
+    private final static int JYNX_BUILD = 0;
 
     private final int version;
     private final int release;

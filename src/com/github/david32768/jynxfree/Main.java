@@ -8,6 +8,7 @@ import static com.github.david32768.jynxfree.jynx.GlobalOption.*;
 import static com.github.david32768.jynxfree.my.Message.*;
 
 import com.github.david32768.jynxfree.jvm.JvmVersion;
+import com.github.david32768.jynxfree.jynx.Global;
 import com.github.david32768.jynxfree.jynx.GlobalOption;
 import com.github.david32768.jynxfree.jynx.MainOption;
 import com.github.david32768.jynxfree.jynx.SevereError;
@@ -85,7 +86,7 @@ public class Main {
         MainOption main = optmain.get();
         args = Arrays.copyOfRange(args, 1, args.length);
         newGlobal(main);
-        String[] mainargs = setOptions(args);
+        String[] mainargs = Global.setOptions(args);
         if (LOGGER().numErrors() != 0) {
             LOG(M3); // "program terminated because of errors"
             appUsage(main);

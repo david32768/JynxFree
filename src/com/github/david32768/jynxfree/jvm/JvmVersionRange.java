@@ -32,9 +32,7 @@ public class JvmVersionRange {
         assert Objects.nonNull(end);
 
         assert !start.isPreview(): "start = " + start;
-        assert !deprecate.isPreview(): "deprecate = " + deprecate;
-        assert !end.isPreview(): "end = " + end;
-        assert preview.stream().allMatch(v -> v.isPreview() && v.compareTo(start) < 0);
+        assert preview.stream().allMatch(v -> v.isPreview() && v.compareTo(start) < 0):"not all preview " + preview;
 
         assert start.compareTo(end) <= 0;
         assert deprecate.compareTo(start) >= 0 && deprecate.compareTo(end) <= 0;

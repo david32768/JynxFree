@@ -1,7 +1,9 @@
 package com.github.david32768.jynxfree.transform;
 
+import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.MethodModel;
 import java.lang.classfile.TypeKind;
+import java.lang.constant.MethodTypeDesc;
 import java.lang.reflect.AccessFlag;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +18,16 @@ public record SlotKind(int slot, TypeKind kind) {
         Objects.requireNonNull(kind);
     }
     
-    public static List<SlotKind> OfParameters(MethodModel mm) {
+    public static List<SlotKind> ofParameters(MethodModel method) {
+        return ofParameters(method.methodTypeSymbol(), method.flags().has(AccessFlag.STATIC));
+    }
+    
+    public static List<SlotKind> ofParameters(MethodTypeDesc mtdesc, boolean isStatic) {
         List<SlotKind> slotlist = new ArrayList<>();
-        if (!mm.flags().flags().contains(AccessFlag.STATIC)) {
+        if (!isStatic) {
             slotlist.add(new SlotKind(0, TypeKind.REFERENCE));
         }
-        for (var klass : mm.methodTypeSymbol().parameterList()) {
+        for (var klass : mtdesc.parameterList()) {
             int next = slotlist.size();
             TypeKind kind = TypeKind.fromDescriptor(klass.descriptorString());
             switch(kind) {

@@ -50,6 +50,7 @@ public enum StandardAttribute implements Attribute {
     Record(Feature.record, EnumSet.of(CLASS),  AttributeType.RECORD),
     PermittedSubclasses(Feature.sealed, EnumSet.of(CLASS), ARRAY, CLASSNAME),
     // end Table 4.7B
+    LoadableDescriptors(Feature.value, EnumSet.of(CLASS), ARRAY, UTF8),
     ;
     
     private final boolean unique;

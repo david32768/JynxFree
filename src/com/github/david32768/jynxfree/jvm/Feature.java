@@ -12,7 +12,6 @@ public enum Feature implements JvmVersioned {
     invokenonvirtual(MIN_VERSION,V1_0_2),
 
     invokespecial(V1_0_2),
-    superflag(V1_0_2),
     finalize(V1_0_2,V9,NEVER),
     v1_0_2(V1_0_2),
     
@@ -70,8 +69,10 @@ public enum Feature implements JvmVersioned {
     
     sealed(EnumSet.of(V15_PREVIEW, V16_PREVIEW), V17, NEVER, NEVER),
     
-    valhalla(V23,V24),
-    value(EnumSet.of(V23_PREVIEW),NEVER,NEVER,NEVER),
+    // change for valhalla
+    superflag(V1_0_2, VALHALLA_PREVIEW),
+    identity(EnumSet.of(VALHALLA_PREVIEW), NEVER, NEVER, NEVER),
+    value(EnumSet.of(VALHALLA_PREVIEW), NEVER, NEVER, NEVER),
     ;
     
     private final JvmVersionRange jvmRange;

@@ -125,27 +125,13 @@ public class SmallInstructions {
         return result;
     }
     
-    private final static List<Opcode> SMALL_INT = List.of(
-            Opcode.ICONST_0,
-            Opcode.ICONST_1,
-            Opcode.ICONST_2,
-            Opcode.ICONST_3,
-            Opcode.ICONST_4,
-            Opcode.ICONST_5);
-    
     public static Instruction smallConst(ConstantInstruction coninst) {
         var desc = coninst.constantValue();
         return switch(desc) {
             case Integer ic -> {
                 int value = ic;
-                if (value == -1) {
-                    yield CodeBuilderUtility.instructionOf(Opcode.ICONST_M1);
-                } else if (value >= 0 && value < SMALL_INT.size()) {
-                    yield CodeBuilderUtility.instructionOf(SMALL_INT.get(value));
-                } else if (value == (byte)value) {
-                   yield CodeBuilderUtility.instructionOf(Opcode.BIPUSH, value);
-                } else if (coninst.opcode() == Opcode.LDC_W && value == (short)value) {
-                    yield CodeBuilderUtility.instructionOf(Opcode.SIPUSH, value);
+                if (value == (byte)value || coninst.opcode() == Opcode.LDC_W && value == (short)value) {
+                   yield smallIntegerConstant(value);
                 } else {
                     yield coninst;
                 }
@@ -186,4 +172,25 @@ public class SmallInstructions {
         };
     }
     
+    private final static List<Opcode> SMALL_INT = List.of(
+            Opcode.ICONST_0,
+            Opcode.ICONST_1,
+            Opcode.ICONST_2,
+            Opcode.ICONST_3,
+            Opcode.ICONST_4,
+            Opcode.ICONST_5);
+    
+    private static Instruction smallIntegerConstant(int value) {
+        if (value == -1) {
+            return CodeBuilderUtility.instructionOf(Opcode.ICONST_M1);
+        } else if (value >= 0 && value < SMALL_INT.size()) {
+            return CodeBuilderUtility.instructionOf(SMALL_INT.get(value));
+        } else if (value == (byte)value) {
+           return CodeBuilderUtility.instructionOf(Opcode.BIPUSH, value);
+        } else if (value == (short)value) {
+            return CodeBuilderUtility.instructionOf(Opcode.SIPUSH, value);
+        } else {
+            throw new AssertionError();
+        }        
+    }
 }

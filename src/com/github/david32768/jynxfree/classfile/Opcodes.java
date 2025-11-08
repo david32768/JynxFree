@@ -5,9 +5,11 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Objects;
 
 import static com.github.david32768.jynxfree.my.Message.M643;
+import static com.github.david32768.jynxfree.my.Message.M652;
+import static com.github.david32768.jynxfree.my.Message.M653;
+import static com.github.david32768.jynxfree.my.Message.M654;
 
 import com.github.david32768.jynxfree.jynx.LogIllegalArgumentException;
 
@@ -26,12 +28,12 @@ public class Opcodes {
         // order of Opcode is not specified although in bytecode order
         Arrays.sort(opcodes, Comparator.comparing(Opcode::bytecode));
         var list = List.of(opcodes);
-        OPCODES = list.subList(0, LIMIT);
+        OPCODES = list.subList(0, LIMIT); // includes 'jsr_w' as 'wide' missing
         WIDE_OPCODES = list.subList(LIMIT, list.size());
     }
     
     public static Opcode of(int bytecode) {
-        Objects.checkIndex(bytecode, LIMIT);
+        checkByteCode(bytecode);
         int index = bytecode < WIDE? bytecode: bytecode - 1;
         Opcode result = OPCODES.get(index);
         assert result.bytecode() == bytecode;
@@ -39,12 +41,26 @@ public class Opcodes {
     }
     
     public static Opcode widePrepended(int bytecode) {
-        Objects.checkIndex(bytecode, LIMIT);
-        int wbc = WIDE << 8 + bytecode;
-        return WIDE_OPCODES.stream()
-                    .filter(opcode -> opcode.bytecode() == wbc)
-                    .findFirst()
-                    .orElseThrow();
+        checkByteCode(bytecode);
+        int wbc = (WIDE << 8) + bytecode;
+        for (Opcode opcode : WIDE_OPCODES) {
+            if (opcode.bytecode() == wbc) {
+                return opcode;
+            }
+        }
+        // "bytecode %d cannot be prefixed with wide"
+        throw new LogIllegalArgumentException(M654, bytecode);
+    }
+
+    private static void checkByteCode(int bytecode) {
+        if (bytecode == WIDE) {
+            // "the wide opcode is not supported in isolation"
+            throw new LogIllegalArgumentException(M652);
+        }
+        if (bytecode < 0 || bytecode > LIMIT) {
+            // "bytecode %d is not in range [%d, %d]"
+            throw new LogIllegalArgumentException(M653, bytecode, 0, Opcode.JSR_W.bytecode());
+        }
     }
     
     public static boolean isImmediate(Opcode opcode) {

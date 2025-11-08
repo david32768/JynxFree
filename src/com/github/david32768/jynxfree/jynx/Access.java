@@ -12,9 +12,7 @@ import static com.github.david32768.jynxfree.jynx.Directive.*;
 import static com.github.david32768.jynxfree.my.Message.*;
 
 import static com.github.david32768.jynxfree.jynx.Global.LOG;
-import static com.github.david32768.jynxfree.jynx.Global.OPTION;
 import static com.github.david32768.jynxfree.jynx.Global.SUPPORTS;
-import static com.github.david32768.jynxfree.jynx.GlobalOption.VALHALLA;
 
 import com.github.david32768.jynxfree.jvm.AccessFlag;
 import com.github.david32768.jynxfree.jvm.Constants;
@@ -39,10 +37,6 @@ public class Access {
     public static Access getInstance(EnumSet<AccessFlag> accflags,
             JvmVersion jvmversion, String name, ClassType classtype) {
         var myflags = accflags.clone();
-        if (OPTION(GlobalOption.VALHALLA) && SUPPORTS(Feature.value) && myflags.contains(acc_strict)) {
-            myflags.remove(acc_strict);
-            myflags.add(valhalla_acc_strict);
-        }
         return new Access(myflags, jvmversion, name, classtype);
     }
 
@@ -156,8 +150,8 @@ public class Access {
     public void check4Class() {
         checkValid(CLASS,classType.getDir());
         allOf(classType.getMustHave4Class(jvmVersion));
-        if (OPTION(VALHALLA)) {
-            oneOf(acc_super, valhalla_acc_value);
+        if (SUPPORTS(Feature.value)) {
+            oneOf(acc_identity, acc_value);
         }
     }
 
@@ -172,8 +166,8 @@ public class Access {
         }
         checkValid(INNER_CLASS,classType.getInnerDir());
         allOf(classType.getMustHave4Inner(jvmVersion));
-        if (OPTION(VALHALLA)) {
-            oneOf(valhalla_acc_identity, valhalla_acc_value);
+        if (SUPPORTS(Feature.value)) {
+            oneOf(acc_identity, acc_value);
         }
     }
 
@@ -181,30 +175,30 @@ public class Access {
     public void check4Field() {
         checkValid(FIELD,dir_field);
         mostOneOf(acc_final, acc_volatile);
-        if (OPTION(GlobalOption.VALHALLA) && SUPPORTS(Feature.value) && is(valhalla_acc_strict)) {
-            noneOf(acc_static);
-            allOf(acc_final);
-        }
         switch (classType) {
             case ANNOTATION_CLASS, INTERFACE -> {
                 allOf(acc_public, acc_static, acc_final);
-                noneOf(acc_volatile, acc_transient, acc_enum);
+                noneOf(acc_volatile, acc_transient, acc_enum, acc_strict_init);
             }
             case RECORD -> {
                 if (isComponent()) {
                     allOf(acc_private, acc_final);
-                    noneOf(acc_static,acc_volatile,acc_transient,acc_enum);
+                    noneOf(acc_static, acc_volatile, acc_transient, acc_enum, acc_strict_init);
                 } else {
                     allOf(acc_static);
-                    noneOf(acc_enum);
+                    noneOf(acc_enum, acc_strict_init);
                 }
             }
             case ENUM -> {
+                noneOf(acc_strict_init);
             }
-            case BASIC -> noneOf(acc_enum);
+            case IDENTITY_CLASS -> noneOf(acc_enum, acc_strict_init);
             case VALUE_CLASS -> {
                 noneOf(acc_enum);
-                oneOf(acc_static, valhalla_acc_strict);
+                oneOf(acc_static, acc_strict_init);
+                if (!is(acc_static)) {
+                    allOf(acc_final, acc_strict_init);
+                }
             }
             default -> throw new LogUnexpectedEnumValueException(classType);
         }
@@ -220,28 +214,36 @@ public class Access {
     // Method - Table 4.6A
     public void check4Method() {
         checkValid(METHOD,dir_method);
-        if (classType == ClassType.RECORD) {
-            if (isComponent()) {
-                if (is(acc_static) || !is(acc_public)) {
-                    LOG(M226,accflags);  // "invalid access flags %s for component"
-                }
-            }
-            noneOf(acc_native,acc_abstract);
-        }
         if (name.equals(Constants.STATIC_INIT.stringValue())) {
             if (jvmVersion.compareTo(JvmVersion.V1_7) >= 0) {
                 allOf(acc_static);
             }
-        } else {
+            return;
+        }  else {
             if (accflags.contains(acc_abstract)) {
                 noneOf(acc_private, acc_static, acc_final, acc_synchronized, acc_native, acc_strict);
             }
-            if (classType == ClassType.INTERFACE || classType == ClassType.ANNOTATION_CLASS) {
+        }
+        switch(classType) {
+            case RECORD -> {
+                if (isComponent()) {
+                    if (is(acc_static) || !is(acc_public)) {
+                        LOG(M226,accflags);  // "invalid access flags %s for component"
+                    }
+                }
+                noneOf(acc_native,acc_abstract);                
+            }
+            case INTERFACE, ANNOTATION_CLASS -> {
                 noneOf(acc_protected, acc_final, acc_synchronized, acc_native);
                 if (jvmVersion.compareTo(JvmVersion.V1_8) < 0) {
                     allOf(acc_public, acc_abstract);
                 } else {
                     oneOf(acc_public, acc_private);
+                }
+            }
+            case VALUE_CLASS -> {
+                if (accflags.contains(acc_synchronized)) {
+                    allOf(acc_static);
                 }
             }
         }

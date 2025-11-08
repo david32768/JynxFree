@@ -8,9 +8,9 @@ import static com.github.david32768.jynxfree.my.Message.*;
 
 import static com.github.david32768.jynxfree.jynx.Global.LOG;
 import static com.github.david32768.jynxfree.jynx.Global.OPTION;
-import static com.github.david32768.jynxfree.jynx.GlobalOption.VALHALLA;
 
 import com.github.david32768.jynxfree.jynx.Directive;
+import com.github.david32768.jynxfree.jynx.GlobalOption;
 
 public enum JvmVersion {
 
@@ -56,8 +56,11 @@ public enum JvmVersion {
     V23_PREVIEW(ClassFile.JAVA_23_VERSION, 67, ClassFile.PREVIEW_MINOR_VERSION),
     V24(ClassFile.JAVA_24_VERSION, 68),
     V24_PREVIEW(ClassFile.JAVA_24_VERSION, 68, ClassFile.PREVIEW_MINOR_VERSION),
-    V25(69, 69), // Opcodes.V25
+    V25(69, 69), // V25
     V25_PREVIEW(69, 69, ClassFile.PREVIEW_MINOR_VERSION),
+    V26(70, 70), // V26
+    V26_PREVIEW(70, 70, ClassFile.PREVIEW_MINOR_VERSION),
+    VALHALLA_PREVIEW(70, 70, ClassFile.PREVIEW_MINOR_VERSION),
     
     NEVER(0xffff, 0xffff); // must be last
     
@@ -110,12 +113,6 @@ public enum JvmVersion {
         return name().replace("V1_", "V");
     }
     
-    private void checkValhalla() {
-        if (OPTION(VALHALLA) && !supports(Feature.valhalla)) {
-           LOG(M602, this); // "Version %s certainly does not support valhalla" 
-        }
-    }
-    
     @Override
     public String toString() {
         return String.format("%s(%s)",asJava(),asJvm());
@@ -125,7 +122,7 @@ public enum JvmVersion {
     
     public final static JvmVersion MIN_VERSION = V1_0_2;
     public final static JvmVersion DEFAULT_VERSION = V21;
-    public final static JvmVersion SUPPORTED_VERSION = V24;
+    public final static JvmVersion SUPPORTED_VERSION = V25;
     public final static JvmVersion MAX_VERSION;
 
     static {
@@ -134,6 +131,7 @@ public enum JvmVersion {
         for (JvmVersion version:values()) {
             assert last == null
                     || version == V1_6  && last == V1_6JSR
+                    || version == VALHALLA_PREVIEW  && last == V26_PREVIEW
                     || last.release < version.release
                     // "incorrect order: last = %s this = %s"
                     :M94.format(last,version);
@@ -156,12 +154,12 @@ public enum JvmVersion {
         if (version.compareTo(MIN_VERSION) < 0) {
             LOG(M171,version,MIN_VERSION,MAX_VERSION,MIN_VERSION);  // "version %s outside range [%s,%s] - %s used"
             version = MIN_VERSION;
-        } else if (version.compareTo(MAX_VERSION) > 0) {
+        } else if (version.compareTo(MAX_VERSION) > 0
+                && !(MAX_VERSION == V26_PREVIEW && version == VALHALLA_PREVIEW)) {
             LOG(M171,version,MIN_VERSION,MAX_VERSION, MAX_VERSION);  // "version %s outside range [%s,%s] - %s used"
             version = MAX_VERSION;
         }
         version.checkSupported();
-        version.checkValhalla();
         return version;
     }
     
@@ -198,7 +196,9 @@ public enum JvmVersion {
             }
             last = version;
         }
-        last.checkValhalla();
+        if (last == JvmVersion.V26_PREVIEW && OPTION(GlobalOption.VALHALLA)) {
+            last = JvmVersion.VALHALLA_PREVIEW;
+        }
         return last;
     }
     
