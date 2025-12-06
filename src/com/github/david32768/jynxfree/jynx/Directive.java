@@ -116,19 +116,18 @@ public enum Directive implements JvmVersioned {
     dir_invisible_parameter_count(true, METHOD_BLOCK,EnumSet.of(METHOD_BLOCK), RuntimeInvisibleParameterAnnotations),
     
     dir_catch(CODE, EnumSet.of(METHOD_BLOCK, CODE), Exceptions),
-    dir_except_type_annotation(CODE, EnumSet.of(CODE),
+    dir_except_type_annotation(CODE, EnumSet.of(METHOD_BLOCK, CODE),
             RuntimeVisibleTypeAnnotations),
     dir_limit(CODE, EnumSet.of(METHOD_BLOCK, CODE)),
     dir_line(CODE, EnumSet.of(METHOD_BLOCK, CODE), LineNumberTable),
     dir_print(CODE, EnumSet.of(METHOD_BLOCK, CODE)),
+    dir_var(CODE, EnumSet.of(METHOD_BLOCK, CODE), LocalVariableTable),
     state_opcode(CODE, EnumSet.of(METHOD_BLOCK, CODE)),
     
     // ClassFile can calculate stack frames
     // cannot be first line in code; hence no METHOD state
     dir_stack(CODE, EnumSet.of(CODE),StackMapTable), 
     end_stack(CODE, EnumSet.of(CODE),StackMapTable),
-    // cannot be first line in code as labels must be defined
-    dir_var(CODE, EnumSet.of(CODE), LocalVariableTable),
     // cannot be first line in code; hence no METHOD state
     dir_if(CODE, EnumSet.of(CODE)),
     end_if(CODE, EnumSet.of(CODE)),

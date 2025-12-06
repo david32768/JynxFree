@@ -193,14 +193,21 @@ public class Global {
 
     public static void LOG(Throwable ex, JynxMessage msg, Object... objs) {
         if (OPTION(GlobalOption.DEBUG)) {
-            ex.printStackTrace();;
+            ex.printStackTrace();
         }
         global.logger.log(msg, objs);
     }
 
+    public static void LOG(Throwable ex, String linestr, JynxMessage msg, Object... objs) {
+        if (OPTION(GlobalOption.DEBUG)) {
+            ex.printStackTrace();
+        }
+        global.logger.log(linestr, msg, objs);
+    }
+
     public static void LOG(Throwable ex) {
         if (OPTION(GlobalOption.DEBUG)) {
-            ex.printStackTrace();;
+            ex.printStackTrace();
         }
         if (ex instanceof LogIllegalArgumentException) {
             return; // already logged
@@ -214,7 +221,7 @@ public class Global {
         if (ex instanceof SevereError) {
             return; // already logged
         }
-        LOG(M999,ex.toString()); // "%s"
+        LOG(M999, ex); // "%s"
     }
 
     public static boolean END_MESSAGES(String classname) {

@@ -1,5 +1,6 @@
 package com.github.david32768.jynxfree.jynx;
 
+import java.lang.constant.ConstantDescs;
 import java.util.EnumSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -19,8 +20,8 @@ public enum NameDesc {
 
     OPTION("[A-Za-z][A-Za-z_]*[0-9]?"),
     
-    STATIC_INIT_NAME(Constants.STATIC_INIT_NAME.stringValue()),
-    CLASS_INIT_NAME(Constants.CLASS_INIT_NAME.stringValue()),
+    STATIC_INIT_NAME(ConstantDescs.CLASS_INIT_NAME),
+    INIT_NAME(ConstantDescs.INIT_NAME),
 
     OP_STACK("[AIJFD]"),
     OP_PARMS("\\((%s)*\\)",OP_STACK),
@@ -58,14 +59,14 @@ public enum NameDesc {
     FIELD_NAME(Style.FIELD_NAME,"%s",UNQUALIFIED_NAME),
     FIELD_DESC("\\[*(%s|%s)",PRIMITIVE,CLASS_PARM),
     INTERFACE_METHOD_NAME(Style.METHOD_NAME,METHOD_ID),
-    METHOD_NAME(Style.METHOD_NAME,"(%s|%s|%s)",STATIC_INIT_NAME,CLASS_INIT_NAME,METHOD_ID),
+    METHOD_NAME(Style.METHOD_NAME,"(%s|%s|%s)",STATIC_INIT_NAME,INIT_NAME,METHOD_ID),
     PARMS("\\((%s)*\\)",FIELD_DESC),
     DESC(Style.DESC,"%s(V|%s)",PARMS,FIELD_DESC),
     NAME_DESC("%s%s",METHOD_ID,DESC),
-    STATIC_INIT_NAME_DESC(Constants.STATIC_INIT.regex()),
-    CLASS_INIT_NAME_DESC("%s%sV",CLASS_INIT_NAME,PARMS),
+    STATIC_INIT_NAME_DESC("%s\\(\\)V", STATIC_INIT_NAME),
+    INIT_NAME_DESC("%s%sV",INIT_NAME,PARMS),
     INTERFACE_METHOD_NAME_DESC(NAME_DESC),
-    METHOD_NAME_DESC("(%s|%s|%s)",NAME_DESC,STATIC_INIT_NAME_DESC,CLASS_INIT_NAME_DESC),
+    METHOD_NAME_DESC("(%s|%s|%s)",NAME_DESC,STATIC_INIT_NAME_DESC,INIT_NAME_DESC),
     ARRAY_METHOD_NAME_DESC(Constants.ARRAY_METHODS),
     OBJECT_NAME("%s|%s",ARRAY_DESC,CLASS_NAME),
     OBJECT_METHOD_DESC("(%s)\\/%s",OBJECT_NAME,METHOD_NAME_DESC),

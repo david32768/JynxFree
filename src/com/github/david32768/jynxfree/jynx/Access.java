@@ -15,7 +15,6 @@ import static com.github.david32768.jynxfree.jynx.Global.LOG;
 import static com.github.david32768.jynxfree.jynx.Global.SUPPORTS;
 
 import com.github.david32768.jynxfree.jvm.AccessFlag;
-import com.github.david32768.jynxfree.jvm.Constants;
 import com.github.david32768.jynxfree.jvm.Context;
 import com.github.david32768.jynxfree.jvm.Feature;
 import com.github.david32768.jynxfree.jvm.JvmVersion;
@@ -207,14 +206,14 @@ public class Access {
     public void check4InitMethod() {
         checkValid(INIT_METHOD,dir_method);
         if (classType == ClassType.INTERFACE || classType == ClassType.ANNOTATION_CLASS) {
-            LOG(M235,NameDesc.CLASS_INIT_NAME); // "%s method appears in an interface"
+            LOG(M235,NameDesc.INIT_NAME); // "%s method appears in an interface"
         }
     }
 
     // Method - Table 4.6A
     public void check4Method() {
         checkValid(METHOD,dir_method);
-        if (name.equals(Constants.STATIC_INIT.stringValue())) {
+        if (NameDesc.STATIC_INIT_NAME_DESC.isValid(name)) {
             if (jvmVersion.compareTo(JvmVersion.V1_7) >= 0) {
                 allOf(acc_static);
             }

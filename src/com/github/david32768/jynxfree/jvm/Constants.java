@@ -30,10 +30,6 @@ public enum Constants {
     WAITJI("wait(JI)V"),
     FINALIZE("finalize()V"),
     
-    CLASS_INIT_NAME("<init>"),
-    STATIC_INIT_NAME("<clinit>"),
-    STATIC_INIT("<clinit>()V"),
-
     NAME("name()L%s;",STRING_CLASS),
     ORDINAL("ordinal()I"),
     VALUES_FORMAT("%1$s.values()[L%1$s;"),

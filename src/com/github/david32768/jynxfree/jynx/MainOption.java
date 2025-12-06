@@ -88,7 +88,7 @@ public enum MainOption {
 
     private final static int JYNX_VERSION = 0;
     private final static int JYNX_RELEASE = 25;
-    private final static int JYNX_BUILD = 0;
+    private final static int JYNX_BUILD = 1;
 
     private final int version;
     private final int release;
