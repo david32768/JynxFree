@@ -20,7 +20,7 @@ import static com.github.david32768.jynxfree.my.Message.M6;
 public enum MainOption {
     
     ASSEMBLY("jynx",
-        String.format(" {options} %s_file", JX_SUFFIX),
+        String.format(" {options} %s_file [output_directory]?", JX_SUFFIX),
         List.of(
             String.format("produces a class file from a %s file", JX_SUFFIX)
         ),
@@ -86,13 +86,6 @@ public enum MainOption {
     ),
     ;
 
-    private final static int JYNX_VERSION = 0;
-    private final static int JYNX_RELEASE = 25;
-    private final static int JYNX_BUILD = 1;
-
-    private final int version;
-    private final int release;
-    private final int build;
     private final String extname;
     private final String usage;
     private final List<String> description;
@@ -103,9 +96,6 @@ public enum MainOption {
         this.usage = " " + extname.toLowerCase() + String.format(usage, JX_SUFFIX);
         this.description = description;
         this.options = options;
-        this.version = JYNX_VERSION;
-        this.release = JYNX_RELEASE;
-        this.build = JYNX_BUILD;
     }
 
     public boolean run(String[] args) {
@@ -129,13 +119,20 @@ public enum MainOption {
         return extname;
     }
 
-    public String version() {
-        return String.format("%d.%d.%d", version, release, build);
+    public static String version(MainOption main) {
+        if (main == null) {
+            return "0.25.2";
+        }
+        var service = MainOptionService.find(main);
+        if (service.isPresent()) {
+            return main.name() + " " + service.get().version();
+        }
+        return main.name() + " not found";        
     }
-
+    
     public void printHeader() {
-        // "%nJynx %s %s; Java runtime version %s"
-        LOG(M4, name(), version(), Runtime.version());
+        // "%nJynx %s; Java runtime version %s"
+        LOG(M4, version(this), Runtime.version());
     }
     
     public boolean usesOption(GlobalOption opt) {

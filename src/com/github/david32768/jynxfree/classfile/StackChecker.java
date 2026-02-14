@@ -8,6 +8,7 @@ import java.lang.classfile.attribute.RuntimeVisibleTypeAnnotationsAttribute;
 import java.lang.classfile.attribute.StackMapFrameInfo;
 import java.lang.classfile.attribute.StackMapFrameInfo.VerificationTypeInfo;
 import java.lang.classfile.attribute.StackMapTableAttribute;
+import java.lang.classfile.attribute.UnknownAttribute;
 import java.lang.classfile.CodeElement;
 import java.lang.classfile.CustomAttribute;
 import java.lang.classfile.Instruction;
@@ -141,6 +142,7 @@ public class StackChecker {
             case RuntimeVisibleTypeAnnotationsAttribute _ -> {}
             case RuntimeInvisibleTypeAnnotationsAttribute _ -> {}
             case CustomAttribute _ -> {}
+            case UnknownAttribute _ -> {}
         }        
     }
     

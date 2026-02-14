@@ -19,7 +19,14 @@ import com.github.david32768.jynxfree.jvm.Constants;
 public enum NameDesc {
 
     OPTION("[A-Za-z][A-Za-z_]*[0-9]?"),
-    
+    FILE_EXTENSION("[\\.][a-z]+"),
+
+    BASE64_MAIN("[A-Za-z0-9\\+/]+"),
+    BASE64_SUFFIX("[=]{0,3}"),
+    BASE64("%s%s", BASE64_MAIN, BASE64_SUFFIX), 
+    ZERO_RUN("<[1-9][0-9]*>"),
+    BASE64_NONZERO("(%s|%s)*%s", BASE64_MAIN, ZERO_RUN, BASE64_SUFFIX),   
+  
     STATIC_INIT_NAME(ConstantDescs.CLASS_INIT_NAME),
     INIT_NAME(ConstantDescs.INIT_NAME),
 

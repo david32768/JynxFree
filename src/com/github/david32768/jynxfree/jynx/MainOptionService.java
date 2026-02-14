@@ -13,6 +13,10 @@ import static com.github.david32768.jynxfree.my.Message.M219;
 public interface MainOptionService {
 
     MainOption main();
+    
+    default String version() {
+        return "0.25.1";
+    }
 
     default boolean call(PrintWriter pw, String[] args) {
         return switch (args.length) {

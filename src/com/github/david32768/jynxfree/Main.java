@@ -16,8 +16,8 @@ import com.github.david32768.jynxfree.jynx.SevereError;
 public class Main {
     
     private static void outputVersion(MainOption main) {
-        // // "Jynx version %s; maximum Java version is %s"
-        LOG(M0, main.version(), JvmVersion.MAX_VERSION);
+        // "Jynx version %s; maximum Java version is %s"
+        LOG(M0, MainOption.version(main), JvmVersion.MAX_VERSION);
     }
 
     private static void appUsage() {
@@ -44,7 +44,7 @@ public class Main {
         String option = args[0];
         if (args.length == 1) {
             if (VERSION.isArg(option)) {
-                outputVersion(MainOption.ASSEMBLY);
+                outputVersion(null);
                 return Optional.empty();
             }
             if (HELP.isArg(option)) {

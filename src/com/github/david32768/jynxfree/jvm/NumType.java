@@ -92,13 +92,12 @@ public enum NumType {
         return var >= minvalue && var <= maxvalue;
     }
 
-    // NB long is always signed
     public boolean isInUnsignedRange(long var) {
         if (maxvalue == 0) {
             // "cannot range check floating point numbers"
             throw new LogIllegalArgumentException(M70);
         }
-        return var >= 0 && var <= unsignedMaxvalue;
+        return this == t_long || var >= 0 && var <= unsignedMaxvalue;
     }
 
     public void checkInRange(long var) {

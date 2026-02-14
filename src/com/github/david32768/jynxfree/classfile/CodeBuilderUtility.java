@@ -11,6 +11,7 @@ import java.lang.classfile.Opcode;
 import static com.github.david32768.jynxfree.my.Message.M635;
 import static com.github.david32768.jynxfree.my.Message.M636;
 import static com.github.david32768.jynxfree.my.Message.M637;
+import static com.github.david32768.jynxfree.my.Message.M656;
 
 import com.github.david32768.jynxfree.jynx.LogAssertionError;
 import com.github.david32768.jynxfree.jynx.LogIllegalArgumentException;
@@ -88,6 +89,13 @@ public class CodeBuilderUtility {
                     LoadInstruction.of(opcode, value);
             case RET, RET_W ->
                 DiscontinuedInstruction.RetInstruction.of(value);
+            case ICONST_M1, ICONST_0, ICONST_1, ICONST_2, ICONST_3, ICONST_4, ICONST_5 -> {
+                if (Opcodes.numericSuffix(opcode) != value) {
+                    // "Opcode %s requires value to be %d, but is %d"),
+                    throw new LogIllegalArgumentException(M656, opcode, Opcodes.numericSuffix(opcode), value);
+                }
+                yield ConstantInstruction.ofIntrinsic(opcode);
+            }
             default ->
                 // "Opcode %s does not use an argument of int"
                 throw new LogIllegalArgumentException(M637, opcode);

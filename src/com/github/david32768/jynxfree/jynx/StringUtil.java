@@ -138,7 +138,7 @@ public class StringUtil {
         return sb.toString();
     }
     
-    private static String StringEscape(String token) {
+    private static String stringEscape(String token) {
         StringBuilder sb = new StringBuilder(token.length());
         for (int i = 0;i < token.length();i++) {
             char c = token.charAt(i);
@@ -147,8 +147,15 @@ public class StringUtil {
         return sb.toString();
     }
     
-    public static String QuoteEscape(String token) {
-        return '\"' + StringEscape(token) + '\"';
+    public static String enquote(String token) {
+        if (token.startsWith("\"")) {
+            return token;
+        }
+        return quoteEscape(token);
+    }
+    
+    public static String quoteEscape(String token) {
+        return '\"' + stringEscape(token) + '\"';
     }
     
     public static String[] tokenise(String line) {
@@ -292,7 +299,7 @@ public class StringUtil {
         }
         if (str.charAt(0) == '\"') {
             str = unescapeString(str);
-            return QuoteEscape(str);
+            return quoteEscape(str);
         }
         if (StringUtil.isVisibleAscii(str) && !str.trim().isEmpty()) {
             return str;
@@ -307,7 +314,7 @@ public class StringUtil {
         }
         if (str.charAt(0) == '\"') {
             str = unescapeString(str);
-            return QuoteEscape(str);
+            return quoteEscape(str);
         }
         if (StringUtil.isPrintableAscii(str)) {
             return str;
