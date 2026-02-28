@@ -121,7 +121,7 @@ public enum MainOption {
 
     public static String version(MainOption main) {
         if (main == null) {
-            return "0.25.2";
+            return "0.25.3";
         }
         var service = MainOptionService.find(main);
         if (service.isPresent()) {

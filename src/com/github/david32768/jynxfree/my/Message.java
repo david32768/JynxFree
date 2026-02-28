@@ -44,7 +44,6 @@ public enum Message implements JynxMessage {
     M51(BLANK,"do not output class file"),
     M57(ERROR,"Version %s does not support %s (supported %s)"),
     M61(ERROR,"invalid stack frame type(%s) - %s assumed"),
-    M62(ERROR,"macro nest level is negative or exceeds %d"),
     M63(ERROR,"Loading of %s not supported in %s"),
     M64(STYLE,"final static field name (%s) is not in uppercase"),
     M66(ERROR,"invalid %s: %s"),

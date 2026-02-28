@@ -5,9 +5,6 @@ import java.util.Objects;
 
 import static com.github.david32768.jynxfree.jvm.JvmVersion.MIN_VERSION;
 import static com.github.david32768.jynxfree.jvm.JvmVersion.NEVER;
-import static com.github.david32768.jynxfree.my.Message.M62;
-
-import com.github.david32768.jynxfree.jynx.LogAssertionError;
 
 public class JvmVersionRange {
 
@@ -18,14 +15,8 @@ public class JvmVersionRange {
     private final JvmVersion start;
     private final JvmVersion deprecate;
     private final JvmVersion end;
-    private final int level;
     
     public JvmVersionRange (EnumSet<JvmVersion> preview, JvmVersion start, JvmVersion deprecate, JvmVersion end) {
-        this(0,preview,start,deprecate,end);
-    }
-   
-    private JvmVersionRange (int level, EnumSet<JvmVersion> preview,
-            JvmVersion start, JvmVersion deprecate, JvmVersion end) {
         assert Objects.nonNull(preview);
         assert Objects.nonNull(start);
         assert Objects.nonNull(deprecate);
@@ -41,19 +32,8 @@ public class JvmVersionRange {
         this.start = start;
         this.deprecate = deprecate;
         this.end = end;
-        this.level = level;
-        checkLevel(level);
     }
     
-    private static final int MAXIMUM_LEVEL = 16;
-
-    public static void checkLevel(int level) {
-        if (level < 0 || level > MAXIMUM_LEVEL) {
-           // "macro nest level is negative or exceeds %d"
-            throw new LogAssertionError(M62,MAXIMUM_LEVEL);
-        }
-   }
-
     public boolean isSupportedBy(JvmVersion jvmversion) {
         return jvmversion.compareTo(start) >= 0 && jvmversion.compareTo(end) < 0
                 || preview.contains(jvmversion);
@@ -62,32 +42,6 @@ public class JvmVersionRange {
     public boolean isDeprecated(JvmVersion jvmversion) {
         assert isSupportedBy(jvmversion);
         return deprecate.compareTo(end) < 0 && jvmversion.compareTo(deprecate) >= 0;
-    }
-    
-    public JvmVersionRange intersect(JvmVersionRange other) {
-        int newlevel = Math.max(level,other. level) + 1;
-        EnumSet<JvmVersion> npreview = preview.clone();
-        npreview.retainAll(other.preview);
-        JvmVersion nstart = max(start,other.start);
-        JvmVersion ndeprecate = min(deprecate,other.deprecate);
-        JvmVersion nend = min(end,other.end);
-
-        ndeprecate = max(nstart,ndeprecate);
-        nstart = min(nstart, nend);
-
-        return new JvmVersionRange(newlevel,
-                npreview,
-                nstart,
-                ndeprecate,
-                nend);
-    }
-    
-    private JvmVersion min(JvmVersion v1, JvmVersion v2) {
-        return v1.compareTo(v2) <= 0?v1:v2;
-    }
-    
-    private JvmVersion max(JvmVersion v1, JvmVersion v2) {
-        return v1.compareTo(v2) >= 0?v1:v2;
     }
     
     @Override
