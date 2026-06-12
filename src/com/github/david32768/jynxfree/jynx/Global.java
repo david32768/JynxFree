@@ -137,6 +137,10 @@ public class Global {
         return global.options.clone();
     }
     
+    public static boolean IS_VALHALLA() {
+        return JVM_VERSION().isValhalla() || OPTION(GlobalOption.VALHALLA);
+    }
+    
     public static String[] setOptions(String[] args) {
         String[] parms = setOptionsImpl(args);
         global.addedOptions.clear();

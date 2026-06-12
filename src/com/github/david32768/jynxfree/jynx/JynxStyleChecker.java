@@ -5,18 +5,16 @@ import java.lang.classfile.MethodSignature;
 import java.lang.classfile.Signature;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
-import java.util.Optional;
 
+import static com.github.david32768.jynxfree.jynx.Global.JVM_VERSION;
 import static com.github.david32768.jynxfree.jynx.Global.LOG;
-import static com.github.david32768.jynxfree.jynx.Global.SUPPORTS;
 import static com.github.david32768.jynxfree.jynx.Style.FIELD_NAME;
 import static com.github.david32768.jynxfree.jynx.Style.METHOD_NAME;
 
 import static com.github.david32768.jynxfree.my.Message.M158;
 import static com.github.david32768.jynxfree.my.Message.M236;
-import static com.github.david32768.jynxfree.my.Message.M258;
 import static com.github.david32768.jynxfree.my.Message.M344;
-import static com.github.david32768.jynxfree.my.Message.M401;
+import static com.github.david32768.jynxfree.my.Message.M358;
 import static com.github.david32768.jynxfree.my.Message.M93;
 
 import com.github.david32768.jynxfree.jvm.JavaReserved;
@@ -25,25 +23,13 @@ public class JynxStyleChecker {
 
     private JynxStyleChecker() {}
     
-    public static void checkNotJavaReserved(String str) {
-        Optional<JavaReserved> javaid = JavaReserved.of(str);
-        if (javaid.isPresent()) {
-            JavaReserved jres = javaid.get();
-            if (jres.isContextual()) {
-                LOG(M401,str); // "%s is a contextual reserved word"
-            } else if (SUPPORTS(jres.feature())) {
-                LOG(M258,str); // "%s is a reserved word and cannot be a Java Id"
-            }
-        }
-    }
-    
     public static void checkClassStyle(String str) {
         int index = str.lastIndexOf('/');
         if (index >= 0) {
             checkPackageStyle(str.substring(0,index));
         }
         String klass = str.substring(index + 1);
-        checkNotJavaReserved(klass);
+        checkNotJavaType(klass);
         if (Global.OPTION(GlobalOption.WARN_STYLE)) {
             int ch = klass.codePointAt(0);
             if (!Character.isUpperCase(ch)) {
@@ -53,16 +39,10 @@ public class JynxStyleChecker {
         }
     }
     
-    private static boolean packageChar(int codepoint) {
-        return Character.isLowerCase(codepoint)
-                || Character.isDigit(codepoint)
-                || codepoint == '/';
-    }
-    
     public static void checkPackageStyle(String str) {
         String[] components = str.split("/");
         for (String component:components) {
-            checkNotJavaReserved(component);
+            checkNotJavaWord(component);
         }
         if (NameDesc.isJava(str) || Global.OPTION(GlobalOption.WARN_STYLE)) {
             if (!str.codePoints().allMatch(JynxStyleChecker::packageChar)) {
@@ -71,6 +51,12 @@ public class JynxStyleChecker {
         }
     }
 
+    private static boolean packageChar(int codepoint) {
+        return Character.isLowerCase(codepoint)
+                || Character.isDigit(codepoint)
+                || codepoint == '/';
+    }
+    
     public static void checkJavaMethodNameStyle(String str) {
         int first = str.codePointAt(0);
         if (Character.isUpperCase(first) && !str.equalsIgnoreCase(str)) {
@@ -79,14 +65,14 @@ public class JynxStyleChecker {
     }
     
     public static void checkMethodNameStyle(String str) {
-        checkNotJavaReserved(str);
+        checkNotJavaWord(str);
         if (Global.OPTION(GlobalOption.WARN_STYLE)) {
             checkJavaMethodNameStyle(str);
         }
     }
     
     public static void checkFieldNameStyle(String str) {
-        checkNotJavaReserved(str);
+        checkNotJavaWord(str);
         if (Global.OPTION(GlobalOption.WARN_STYLE)) {
             int first = str.codePointAt(0);
             if (Character.isUpperCase(first) && !str.equalsIgnoreCase(str)) {
@@ -133,4 +119,31 @@ public class JynxStyleChecker {
     public static void checkFieldSignature(String str) {
         Signature.parseFrom(str);
     }
+
+    private static void checkNotJavaWord(String str) {
+        checkNotJavaWord(str, false);
+    }
+
+    private static void checkNotJavaType(String str) {
+        checkNotJavaWord(str, true);
+    }
+
+    private static void checkNotJavaWord(String str, boolean typeid) {
+        JavaReserved.of(str, JVM_VERSION())
+                .ifPresent(res -> checkWordType(str, res, typeid));
+    }
+
+    private static void checkWordType(String str, JavaReserved reserved, boolean typeid) {
+        JavaReserved.WordType wtype = reserved.wordType();
+        boolean ok = switch(wtype) {
+            case CONTEXTUAL -> true;
+            case NON_TYPEID -> !typeid;
+            default -> false;
+        };
+        if (!ok) {
+            // "%s is a %s key word and cannot be a Java Id"
+            LOG(M358, str, wtype);
+        }        
+    }
+    
 }

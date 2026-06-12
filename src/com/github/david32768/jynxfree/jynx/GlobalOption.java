@@ -35,6 +35,9 @@ public enum GlobalOption {
     GENERIC_SWITCH(M148), // "optimise switch instruction size"
     SKIP_STACK(M609), // "do not print stack after each instruction"
     VALHALLA(M601), // "Valhalla - limited support; may change"
+    QUICK(M92), // "do not print detailed differences" 
+    LDC_ONLY(M130), // "print ldc_w as ldc"
+
     
     DEBUG(M13), // "print stack trace(s)"
     DETAIL(M17),  // "print constant pool, instructions and other detail"

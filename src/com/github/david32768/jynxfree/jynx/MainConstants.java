@@ -4,5 +4,6 @@ public class MainConstants {
     
     public final static String JX_SUFFIX = ".jx";
     public final static String HINTS_SUFFIX = ".hints";
+    public final static String TXT_SUFFIX = ".txt";
 
 }

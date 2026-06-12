@@ -1,6 +1,10 @@
 package com.github.david32768.jynxfree.jynx;
 
+import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -11,11 +15,15 @@ import java.util.stream.Stream;
 import static com.github.david32768.jynxfree.jynx.GlobalOption.*;
 import static com.github.david32768.jynxfree.jynx.MainConstants.*;
 
+import static com.github.david32768.jynxfree.jynx.Global.ADD_OPTIONS;
 import static com.github.david32768.jynxfree.jynx.Global.LOG;
-
+import static com.github.david32768.jynxfree.jynx.Global.LOGGER;
+import static com.github.david32768.jynxfree.jynx.Global.OPTIONS;
+import static com.github.david32768.jynxfree.my.Message.M298;
 import static com.github.david32768.jynxfree.my.Message.M331;
 import static com.github.david32768.jynxfree.my.Message.M4;
 import static com.github.david32768.jynxfree.my.Message.M6;
+import static com.github.david32768.jynxfree.my.Message.M997;
 
 public enum MainOption {
     
@@ -36,9 +44,9 @@ public enum MainOption {
         List.of(
             "checks that classes are the same according to ASM Textifier"
         ),
-        EnumSet.of(DEBUG, SKIP_FRAMES)
+        EnumSet.of(DEBUG, SKIP_FRAMES, QUICK)
     ),
-    DISASSEMBLY("tojynx",
+    DISASSEMBLY("tojynx", true,
         String.format(" {options}  class-name|class_file > %s_file", JX_SUFFIX),
         List.of(
             String.format("produces a %s file from a class", JX_SUFFIX),
@@ -46,7 +54,7 @@ public enum MainOption {
                     ASSEMBLY.extname.toUpperCase(), Directive.dir_version)
         ),
         EnumSet.of(SKIP_CODE, SKIP_DEBUG, SKIP_FRAMES, SKIP_ANNOTATIONS, DOWN_CAST,
-                SKIP_STACK, UPGRADE_TO_V7, VALHALLA,
+                SKIP_STACK, UPGRADE_TO_V7, VALHALLA, LDC_ONLY,
                 DEBUG, INCREASE_MESSAGE_SEVERITY)
     ),
     ROUNDTRIP("roundtrip",
@@ -58,9 +66,9 @@ public enum MainOption {
             "txt-file is a .txt file containing [ {options} [class-name|class-file] ]*"    
         ),
         EnumSet.of(USE_STACK_MAP, BASIC_VERIFIER, VERIFIER_PLATFORM, VALHALLA,
-                SKIP_FRAMES, DOWN_CAST, DEBUG, SUPPRESS_WARNINGS)
+                SKIP_FRAMES, DOWN_CAST, DEBUG, SUPPRESS_WARNINGS, QUICK)
     ),
-    STRUCTURE("structure",
+    STRUCTURE("structure", true,
         " {options}  class-name|class_file",
         List.of(
             "prints a skeleton of class structure"
@@ -90,29 +98,103 @@ public enum MainOption {
     private final String usage;
     private final List<String> description;
     private final EnumSet<GlobalOption> options;
+    private final PrintStream batchStream;
 
     private MainOption(String extname, String usage, List<String> description, EnumSet<GlobalOption> options) {
+        this(extname, false, usage, description, options);
+    }
+
+    private MainOption(String extname, boolean batcherr, String usage, List<String> description, EnumSet<GlobalOption> options) {
         this.extname = extname;
         this.usage = " " + extname.toLowerCase() + String.format(usage, JX_SUFFIX);
         this.description = description;
         this.options = options;
+        this.batchStream = batcherr? System.err: System.out;
     }
 
     public boolean run(String[] args) {
-        var main = this.mainOptionService();
         try (PrintWriter pw = new PrintWriter(System.out)) {
-            boolean success;
-            try {
-                success = main.call(pw, args);
-            } catch(LogUnsupportedOperationException ex) {
-                return false;
-            } catch (Exception ex) {
-                LOG(ex);
-                return false;
+            var main = this.mainOptionService();
+            if (args.length == 1 && args[0].endsWith(TXT_SUFFIX)) {
+                return runList(pw, main, args[0]);
             }
-            pw.flush();
-            return success;
+            return run(pw, main, args);
         }
+    }
+    
+    private boolean run(PrintWriter pw, MainOptionService main, String[] args) {
+        boolean success;
+        try {
+            success = main.call(pw, args);
+        } catch(LogUnsupportedOperationException ex) {
+            success = false;
+        } catch (Exception ex) {
+            LOG(ex);
+            success = false;
+        }
+        pw.flush();
+        return success;
+    }
+    
+    private boolean runList(PrintWriter pw, MainOptionService main, String listfile) {
+        EnumSet<GlobalOption> baseoptions = OPTIONS();
+        int ct = 0;
+        int okct = 0;
+        int errct = 0;
+        int parmct = 0;
+        long start = System.currentTimeMillis();
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(listfile));
+            for (String line : lines) {
+                line = line.trim();
+                if (line.startsWith(";")
+                        || line.isEmpty()
+                        || line.endsWith("/")
+                        || line.endsWith("\\")
+                        || line.endsWith(".MF")) {
+                    continue;
+                }
+                LOGGER().setLine(line);
+                var args = line.split(" ");
+                Global.newGlobal(this);
+                ADD_OPTIONS(baseoptions);
+                String[] mainargs = Global.setOptions(args);
+                if (mainargs.length == 0 && ct == 0) {
+                    baseoptions = OPTIONS();
+                    continue;
+                }
+                ++ct;
+                boolean success;
+                try {
+                    success = run(pw, main, mainargs);
+                } catch (SevereError ex) {
+                    success = false;
+                } catch (Exception ex) {
+                    // "%s"
+                    LOG(M997, ex.getMessage());
+                    success = false;
+                }
+                if (success) {
+                    ++okct;
+                } else {
+                    // "%s of %s failed"
+                    batchStream.println(M298.format(main.main(), Arrays.toString(mainargs)));
+                    ++errct;
+                }
+            }
+        } catch (IOException ex) {
+            LOG(ex);
+            return false;
+        }
+        long end = System.currentTimeMillis();
+        double minutes = (end - start)/60000.;
+        batchStream.format("%nclasses = %d (ok = %d) (%.2f mins)%n", ct, okct, minutes);
+        if (ct != okct) {
+            batchStream.format("    %6d failed  %6d mainargs%n", errct, parmct);
+        }
+        batchStream.println();
+        batchStream.flush();
+        return errct == 0;
     }
     
     public String extname() {
@@ -121,7 +203,7 @@ public enum MainOption {
 
     public static String version(MainOption main) {
         if (main == null) {
-            return "0.25.3";
+            return "0.25.4";
         }
         var service = MainOptionService.find(main);
         if (service.isPresent()) {

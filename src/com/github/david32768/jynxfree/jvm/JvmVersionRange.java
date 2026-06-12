@@ -5,6 +5,13 @@ import java.util.Objects;
 
 import static com.github.david32768.jynxfree.jvm.JvmVersion.MIN_VERSION;
 import static com.github.david32768.jynxfree.jvm.JvmVersion.NEVER;
+import static com.github.david32768.jynxfree.my.Message.M359;
+import static com.github.david32768.jynxfree.my.Message.M360;
+import static com.github.david32768.jynxfree.my.Message.M361;
+import static com.github.david32768.jynxfree.my.Message.M363;
+import static com.github.david32768.jynxfree.my.Message.M364;
+
+import com.github.david32768.jynxfree.jynx.LogIllegalArgumentException;
 
 public class JvmVersionRange {
 
@@ -17,16 +24,32 @@ public class JvmVersionRange {
     private final JvmVersion end;
     
     public JvmVersionRange (EnumSet<JvmVersion> preview, JvmVersion start, JvmVersion deprecate, JvmVersion end) {
-        assert Objects.nonNull(preview);
-        assert Objects.nonNull(start);
-        assert Objects.nonNull(deprecate);
-        assert Objects.nonNull(end);
+        
+        if (preview == null || !preview.stream().allMatch(v -> v.isPreview())) {
+            // "preview = %s must be preview version(s)"
+            throw new LogIllegalArgumentException(M360, preview);
+        }        
+        if (start == null || start.isPreview()) {
+            // "start = %s cannot be a preview version or null"
+            throw new LogIllegalArgumentException(M359, start);
+        }
+        Objects.requireNonNull(deprecate);
+        Objects.requireNonNull(end);
+        
+        if (!preview.stream().allMatch(v -> v.compareTo(start) < 0)) {
+            // "all preview versions %s must be less than start = %s"
+            throw new LogIllegalArgumentException(M361, preview, start);
+        }
+        if (start.compareTo(end) > 0) {
+            // "start = %s must be less than end = %s"
+            throw new LogIllegalArgumentException(M363, start, end);
+        }
+        if (deprecate.compareTo(start) < 0 || deprecate.compareTo(end) > 0) {
+            // "deprecate = %s must be in range [start,end]: start = %s end = %s"
+            throw new LogIllegalArgumentException(M364, deprecate, start, end);
+        }
 
-        assert !start.isPreview(): "start = " + start;
-        assert preview.stream().allMatch(v -> v.isPreview() && v.compareTo(start) < 0):"not all preview " + preview;
-
-        assert start.compareTo(end) <= 0;
-        assert deprecate.compareTo(start) >= 0 && deprecate.compareTo(end) <= 0;
+        super();
 
         this.preview = preview;
         this.start = start;
@@ -34,14 +57,42 @@ public class JvmVersionRange {
         this.end = end;
     }
     
+    public enum State {
+        BEFORE,
+        PREVIEW,
+        ACTIVE,
+        DEPRECATED,
+        AFTER,
+        ;
+    }
+    
+    public State stateFor(JvmVersion version) {
+        if (preview.contains(version)) {
+            return State.PREVIEW;
+        }
+        if (version.compareTo(start) < 0) {
+            return State.BEFORE;
+        }
+        if (version.compareTo(end) >= 0) {
+            return State.AFTER;
+        }
+        if (version.compareTo(deprecate) >= 0) {
+            return State.DEPRECATED;
+        }
+        return State.ACTIVE;
+    }
+    
     public boolean isSupportedBy(JvmVersion jvmversion) {
-        return jvmversion.compareTo(start) >= 0 && jvmversion.compareTo(end) < 0
-                || preview.contains(jvmversion);
+        State state = stateFor(jvmversion);
+        return switch (state) {
+            case PREVIEW, ACTIVE, DEPRECATED -> true; 
+            case BEFORE, AFTER -> false;
+        };
     }
 
     public boolean isDeprecated(JvmVersion jvmversion) {
-        assert isSupportedBy(jvmversion);
-        return deprecate.compareTo(end) < 0 && jvmversion.compareTo(deprecate) >= 0;
+        State state = stateFor(jvmversion);
+        return state == State.DEPRECATED;
     }
     
     @Override

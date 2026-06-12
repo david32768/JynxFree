@@ -10,6 +10,7 @@ import static com.github.david32768.jynxfree.jynx.Global.LOG;
 import static com.github.david32768.jynxfree.jynx.Global.OPTION;
 
 import com.github.david32768.jynxfree.jynx.Directive;
+import com.github.david32768.jynxfree.jynx.Global;
 import com.github.david32768.jynxfree.jynx.GlobalOption;
 
 public enum JvmVersion {
@@ -60,7 +61,9 @@ public enum JvmVersion {
     V25_PREVIEW(ClassFile.JAVA_25_VERSION, 69, ClassFile.PREVIEW_MINOR_VERSION),
     V26(70, 70), // V26
     V26_PREVIEW(70, 70, ClassFile.PREVIEW_MINOR_VERSION),
-    VALHALLA_PREVIEW(70, 70, ClassFile.PREVIEW_MINOR_VERSION),
+    V27(71, 71), // V27
+    V27_PREVIEW(71, 71, ClassFile.PREVIEW_MINOR_VERSION),
+    V27_VALHALLA_PREVIEW(71, 71, ClassFile.PREVIEW_MINOR_VERSION), // must follow V27_PREVIEW
     
     NEVER(0xffff, 0xffff); // must be last
     
@@ -81,8 +84,11 @@ public enum JvmVersion {
         assert isUnsignedShort(major) && major > MAJOR_BASE:M20.format(this.name());
         // "invalid minor version - %s"
         assert isUnsignedShort(minor):M21.format(this.name());
+        assert major < MAJOR_PREVIEW
+                || minor == 0
+                || minor == ClassFile.PREVIEW_MINOR_VERSION
         // "invalid minor version for major version (spec table 4.1A) - %s"
-        assert major < MAJOR_PREVIEW || minor == 0 || minor == PREVIEW:M91.format(this.name());
+                :M91.format(this.name());
     }
     
     private static boolean isUnsignedShort(int ushort) {
@@ -91,18 +97,17 @@ public enum JvmVersion {
     
     private static final int MAJOR_BASE = 44;
     private static final int MAJOR_PREVIEW = 56;
-    private static final int PREVIEW = 0xffff;
         
     public int toASM() {
         return minor << 16 | major;
     }
 
     public boolean isPreview() {
-        return minor == PREVIEW && compareTo(V12) >= 0;
+        return minor == ClassFile.PREVIEW_MINOR_VERSION && compareTo(V12) >= 0;
     }
 
     public String asJvm() {
-        return String.format("%d.%d",major, minor);
+        return String.format("%d.%d", major, minor);
     }
     
     public String asJava() {
@@ -111,6 +116,10 @@ public enum JvmVersion {
 
     public String asClassFile() {
         return name().replace("V1_", "V");
+    }
+    
+    public void setGlobal() {
+        Global.setJvmVersion(this);
     }
     
     @Override
@@ -122,7 +131,10 @@ public enum JvmVersion {
     
     public final static JvmVersion MIN_VERSION = V1_0_2;
     public final static JvmVersion DEFAULT_VERSION = V21;
-    public final static JvmVersion SUPPORTED_VERSION = V25;
+    public final static JvmVersion SUPPORTED_VERSION = V26;
+    
+    public final static JvmVersion MAX_SUPPORTED_VERSION;
+    public final static JvmVersion JAVA_RUNTIME_VERSION;
     public final static JvmVersion MAX_VERSION;
 
     static {
@@ -131,7 +143,7 @@ public enum JvmVersion {
         for (JvmVersion version:values()) {
             assert last == null
                     || version == V1_6  && last == V1_6JSR
-                    || version == VALHALLA_PREVIEW  && last == V26_PREVIEW
+                    || version.isValhalla() && last.toASM() == version.toASM() && !last.isValhalla()
                     || last.release < version.release
                     // "incorrect order: last = %s this = %s"
                     :M94.format(last,version);
@@ -139,12 +151,18 @@ public enum JvmVersion {
             PARSE_MAP.put(version.asClassFile(), version);
             last = version;
         }
-        assert PREVIEW == ClassFile.PREVIEW_MINOR_VERSION;
-        int max = ClassFile.latestMajorVersion();
-        JvmVersion thisversion = from(max, PREVIEW);
-        MAX_VERSION = thisversion;
+        JAVA_RUNTIME_VERSION = from(ClassFile.latestMajorVersion(), ClassFile.PREVIEW_MINOR_VERSION);
+        // --enable-preview ClassFile.latestMinorVersion() returns 0 not PREVIEW_MINOR_VERSION; as per its documentation
+        MAX_SUPPORTED_VERSION = JAVA_RUNTIME_VERSION.compareTo(SUPPORTED_VERSION) < 0?
+                JAVA_RUNTIME_VERSION:
+                SUPPORTED_VERSION;
+        MAX_VERSION = JAVA_RUNTIME_VERSION;
     }
 
+    public boolean isValhalla() {
+        return this == V27_VALHALLA_PREVIEW;
+    } 
+    
     public static JvmVersion getVersionInstance(String verstr) {
         JvmVersion version = PARSE_MAP.get(verstr.toUpperCase());
          if (version == null) {
@@ -152,11 +170,12 @@ public enum JvmVersion {
             LOG(M147,verstr, version);   // "unknown Java version %s - %s used"
         }
         if (version.compareTo(MIN_VERSION) < 0) {
-            LOG(M171,version,MIN_VERSION,MAX_VERSION,MIN_VERSION);  // "version %s outside range [%s,%s] - %s used"
+            // "version %s outside range [%s,%s] - %s used"
+            LOG(M171, version, MIN_VERSION, MAX_VERSION, MIN_VERSION);
             version = MIN_VERSION;
-        } else if (version.compareTo(MAX_VERSION) > 0
-                && !(MAX_VERSION == V26_PREVIEW && version == VALHALLA_PREVIEW)) {
-            LOG(M171,version,MIN_VERSION,MAX_VERSION, MAX_VERSION);  // "version %s outside range [%s,%s] - %s used"
+        } else if (version.compareTo(MAX_VERSION) > 0 && version.toASM() != MAX_VERSION.toASM()) {
+            // "version %s outside range [%s,%s] - %s used"
+            LOG(M171, version, MIN_VERSION, MAX_VERSION, MAX_VERSION);
             version = MAX_VERSION;
         }
         version.checkSupported();
@@ -186,36 +205,39 @@ public enum JvmVersion {
         long release = Integer.toUnsignedLong(majmin);
         JvmVersion last = values()[0];
         for (JvmVersion version:values()) {
-            if (release == last.release) {
-                break;
-            }
             if (release < version.release) {
-                // "unknown release (major = %d, minor = %d): used %s"
-                LOG(M200, release >>> 16, release & 0xffff, last);
                 break;
             }
             last = version;
+            if (release == version.release) {
+                break;
+            }
         }
-        if (last == JvmVersion.V26_PREVIEW && OPTION(GlobalOption.VALHALLA)) {
-            last = JvmVersion.VALHALLA_PREVIEW;
+        if (last == V27_PREVIEW && OPTION(GlobalOption.VALHALLA)) {
+            last = V27_VALHALLA_PREVIEW;
+        } else {
+            if (release != last.release) {
+                // "unknown release (major = %d, minor = %d): used %s"
+                LOG(M200, release >>> 16, release & 0xffff, last);
+            }
         }
         return last;
     }
     
     public void checkSupported() {
-        if (isPreview() || compareTo(SUPPORTED_VERSION) > 0) {
+        if (isPreview() || compareTo(MAX_SUPPORTED_VERSION) > 0) {
             LOG(M72,this); // "version %s may not be fully supported"
         }
     }
     
     public boolean supports(JvmVersioned versioned) {
-        return versioned.range().isSupportedBy(this);
+        return versioned.isSupportedBy(this);
     }
     
     public boolean checkSupports(JvmVersioned versioned) {
         boolean supported = supports(versioned);
         if (supported) {
-            if (versioned.range().isDeprecated(this)) {
+            if (versioned.isDeprecatedIn(this)) {
                 //"%s is deprecated in version %s"
                 LOG(M263,versioned,this);
             }

@@ -63,16 +63,18 @@ public enum Feature implements JvmVersioned {
     constant_dynamic(V11),
     
     typedesc(V12), // invokedynamic third parameter is Ljava/lang/invoke/TypeDescriptor;
-    switch_expression(EnumSet.of(V12_PREVIEW), V13, NEVER, NEVER),
+    switch_expression(EnumSet.of(V12_PREVIEW), V13),
     
-    record(EnumSet.of(V14_PREVIEW, V15_PREVIEW), V16, NEVER, NEVER),
+    record(EnumSet.of(V14_PREVIEW, V15_PREVIEW), V16),
     
-    sealed(EnumSet.of(V15_PREVIEW, V16_PREVIEW), V17, NEVER, NEVER),
+    sealed(EnumSet.of(V15_PREVIEW, V16_PREVIEW), V17),
+    
+    switch_pattern(EnumSet.of(V17_PREVIEW, V18_PREVIEW, V19_PREVIEW, V20_PREVIEW), V21),
     
     // change for valhalla
-    superflag(V1_0_2, VALHALLA_PREVIEW),
-    identity(EnumSet.of(VALHALLA_PREVIEW), NEVER, NEVER, NEVER),
-    value(EnumSet.of(VALHALLA_PREVIEW), NEVER, NEVER, NEVER),
+    superflag(V1_0_2, V27_VALHALLA_PREVIEW),
+    identity(EnumSet.of(V27_VALHALLA_PREVIEW), NEVER),
+    value(EnumSet.of(V27_VALHALLA_PREVIEW), NEVER),
     ;
     
     private final JvmVersionRange jvmRange;
@@ -87,6 +89,10 @@ public enum Feature implements JvmVersioned {
 
     private Feature(JvmVersion start, JvmVersion deprecate, JvmVersion end) {
         this(EnumSet.noneOf(JvmVersion.class), start, deprecate, end);
+    }
+
+    private Feature(EnumSet<JvmVersion> preview, JvmVersion start) {
+        this(preview, start, NEVER, NEVER);
     }
 
     private Feature(EnumSet<JvmVersion> preview, JvmVersion start, JvmVersion deprecate, JvmVersion end) {

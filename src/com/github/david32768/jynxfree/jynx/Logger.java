@@ -91,7 +91,7 @@ public class Logger {
     }
     
     boolean printEndInfo(Object parms){
-        printEndInfo();
+        printSetInfo(endinfo);
         boolean ok = errct == 0;
         if (ok) {
              // "%s of %s completed successfully"
@@ -105,12 +105,12 @@ public class Logger {
         return ok;
     }
 
-    private void printEndInfo(){
+    private void printSetInfo(Set<String> info){
         System.err.println();
-        for (String msg:endinfo) {
+        for (String msg:info) {
             System.err.println(msg);
         }
-        endinfo.clear();
+        info.clear();
     }
 
     private static LogMsgType msgType(JynxMessage msg) {

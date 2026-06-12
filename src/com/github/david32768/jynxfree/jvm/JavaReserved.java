@@ -3,7 +3,9 @@ package com.github.david32768.jynxfree.jvm;
 import java.util.Arrays;
 import java.util.Optional;
 
-public enum JavaReserved {
+import static com.github.david32768.jynxfree.jvm.JavaReserved.WordType.*;
+
+public enum JavaReserved implements JvmVersioned {
     
     // Java reserved words
     ABSTRACT,
@@ -45,7 +47,7 @@ public enum JavaReserved {
     SHORT,
     STATIC,
     STRICTFP(Feature.strictfp_rw),
-    SUPER,
+    SUPER(Feature.superflag),
     SWITCH,
     SYNCHRONISED,
     THIS,
@@ -56,69 +58,94 @@ public enum JavaReserved {
     VOID,
     VOLATILE,
     WHILE,
-    UNDERLINE(Feature.underline," "),
+    UNDERLINE("_", Feature.underline),
     
     // contextual keywords
-    EXPORTS(Feature.modules,true),
-    MODULE(Feature.modules,true),
-    NON_SEALED(Feature.sealed,true,"non-sealed"),
-    OPEN(Feature.modules,true),
-    OPENS(Feature.modules,true),
-    PERMITS(Feature.sealed,true),
-    PROVIDES(Feature.modules,true),
-    RECORD(Feature.record,true),
-    REQUIRES(Feature.modules,true),
-    SEALED(Feature.sealed,true),
-    TO(Feature.modules,true),
-    TRANSITIVE(Feature.modules,true),
-    USES(Feature.modules,true),
-    VAR(Feature.var_type,true),
-    WITH(Feature.modules,true),
-    YIELD(Feature.switch_expression,true),
+    EXPORTS(Feature.modules, CONTEXTUAL),
+    MODULE(Feature.modules, CONTEXTUAL),
+    NON_SEALED("non-sealed", Feature.sealed, CONTEXTUAL),
+    OPEN(Feature.modules, CONTEXTUAL),
+    OPENS(Feature.modules, CONTEXTUAL),
+    PERMITS(Feature.sealed, NON_TYPEID),
+    PROVIDES(Feature.modules, CONTEXTUAL),
+    RECORD(Feature.record, NON_TYPEID),
+    REQUIRES(Feature.modules, CONTEXTUAL),
+    SEALED(Feature.sealed, NON_TYPEID),
+    TO(Feature.modules, CONTEXTUAL),
+    TRANSITIVE(Feature.modules, CONTEXTUAL),
+    USES(Feature.modules, CONTEXTUAL),
+    VALUE(Feature.value, CONTEXTUAL),
+    VAR(Feature.var_type, NON_TYPEID),
+    WHEN(Feature.switch_pattern, CONTEXTUAL),
+    WITH(Feature.modules, CONTEXTUAL),
+    YIELD(Feature.switch_expression, NON_TYPEID),
 
     // literal values
-    TRUE,
-    FALSE,
-    NULL,
+    TRUE(LITERAL),
+    FALSE(LITERAL),
+    NULL(LITERAL),
     ;
     
     private final String word;
     private final Feature feature;
-    private final boolean contextual;
+    private final WordType wordType;
 
     private JavaReserved() {
-        this(Feature.unlimited,false,null);
+        this(Feature.unlimited);
     }
 
     private JavaReserved(Feature feature) {
-        this(feature,false,null);
+        this(feature, RESERVED);
     }
 
-    private JavaReserved(Feature feature,boolean contextual) {
-        this(feature,contextual,null);
+    private JavaReserved(WordType wordtype) {
+        this(Feature.unlimited, wordtype);
+    }
+    
+    private JavaReserved(String word, Feature feature) {
+        this(word, feature, RESERVED);
     }
 
-    private JavaReserved(Feature feature, String word) {
-        this(feature,false,word);
+    private JavaReserved(Feature feature, WordType wordtype) {
+        this(Optional.empty(), feature, wordtype);
     }
 
-    private JavaReserved(Feature feature,boolean contextual, String word) {
-        this.word = word == null?name().toLowerCase():word;
+    private JavaReserved(String word, Feature feature, WordType wordtype) {
+        this(Optional.of(word), feature, wordtype);
+    }
+
+    private JavaReserved(Optional<String> word, Feature feature, WordType wordtype) {
+        this.word = word.orElse(name().toLowerCase());
         this.feature = feature;
-        this.contextual = contextual;
+        this.wordType = wordtype;
     }
 
     public Feature feature() {
         return feature;
     }
 
-    public boolean isContextual() {
-        return contextual;
+    public WordType wordType() {
+        return wordType;
     }
     
-    public static Optional<JavaReserved> of(String str) {
+    @Override
+    public JvmVersionRange range() {
+            return feature.range();
+    }
+    
+    public static Optional<JavaReserved> of(String str, JvmVersion version) {
         return Arrays.stream(values())
                 .filter(jr -> jr.word.equals(str))
+                .filter(jr -> version.supports(jr.feature))
                 .findAny();
+    }
+
+    public enum WordType {
+        RESERVED,
+        CONTEXTUAL,
+        NON_TYPEID,
+        LITERAL,
+        ;
+        
     }
 }
